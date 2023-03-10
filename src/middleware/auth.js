@@ -6,7 +6,7 @@ import {
 import adminModel from '../../DB/models/admin.js';
 
 export const roles = {
-    admin:"Admin",
+    admin:"admin",
     superAdmin:"superAdmin",
 }
 Object.freeze(roles)
