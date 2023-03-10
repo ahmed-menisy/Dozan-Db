@@ -12,7 +12,7 @@ export const errorHandel = (err, req, res, next) => {
         status: err.statusCode,
         ErrorMessage: err.message,
     });
-    console.log(err);
+    console.log(err.stack);
 
 };
 

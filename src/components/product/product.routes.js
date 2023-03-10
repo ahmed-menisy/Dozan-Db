@@ -8,13 +8,22 @@ import * as productValidation from './product.validation.js';
 const router = Router();
 router.post('/add-product',
     auth([roles.admin, roles.superAdmin]),
-    myMulter(filesValidation.image).array('image',5),
+    myMulter(filesValidation.all).fields([
+        { name: "mainImage", maxCount: 1 },
+        { name: 'images', maxCount: 5 },
+        { name: 'video', maxCount: 1 }
+    ]),
     validation(productValidation.addProductSchema),
     asyncErrorHandler(product.addProduct)
 );
 router.patch('/edit-product/:_id',
-    validation(productValidation.updateProductSchema),
     auth([roles.admin, roles.superAdmin]),
+    myMulter(filesValidation.all).fields([
+        { name: "mainImage", maxCount: 1 },
+        { name: 'images', maxCount: 5 },
+        { name: 'video', maxCount: 1 }
+    ]),
+    validation(productValidation.updateProductSchema),
     asyncErrorHandler(product.updateProduct)
 );
 router.delete('/delete-product/:_id',

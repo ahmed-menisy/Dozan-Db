@@ -6,7 +6,8 @@ import path from "path";
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 export const filesValidation = {
     image: /\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF|webp|WEBP)$/,
-    video: /\.(mp4|avi|flv|wmv|mov|mpeg|3gp)$/
+    video: /\.(mp4|avi|flv|wmv|mov|mpeg|3gp)$/,
+    all: /\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF|webp|WEBP|mp4|avi|flv|wmv|mov|mpeg|3gp)$/
 }
 Object.freeze(filesValidation)
 
@@ -14,7 +15,7 @@ export const myMulter = (allowedFiles = filesValidation.image) => {
 
     const storage = multer.diskStorage({})
     const fileFilter = (req, file, cb) => {
-        console.log(req.body);
+        // console.log(req.body);
         if (file.originalname.match(allowedFiles)) {
             cb(null, true)
         } else {

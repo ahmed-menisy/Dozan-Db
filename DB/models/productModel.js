@@ -41,8 +41,4 @@ const productModel = new mongoose.model('Product', productSchema)
 export default productModel
 
 
-/*
-
-https://res.cloudinary.com/di6ab5lc3/image/upload/v1678372246/MainImages/rigel-food-sec-2-img1-200x200.jpgkoM0dPkbzFvQ6v5yLAAh-/rigel-food-sec-2-img1-200x200.jpgKAg9eFcVLS8j9PfGN5TCT.jpg
-
-*/
+/*** */
