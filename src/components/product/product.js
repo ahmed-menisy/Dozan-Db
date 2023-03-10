@@ -9,7 +9,7 @@ import ErrorClass from "../../utils/ErrorClass.js";
 
 
 export const addProduct = async (req, res, next) => {
-    const { title, price, description } = req.body
+        const { title, price, description } = req.body
 
     const product = await productModel.findOne({ title })
     if (product) {
