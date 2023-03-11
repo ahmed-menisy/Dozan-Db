@@ -9,15 +9,13 @@ import ErrorClass from "../../utils/ErrorClass.js";
 
 
 export const addProduct = async (req, res, next) => {
-        const { title, price, description } = req.body
+    const { title, price, description } = req.body
 
     const product = await productModel.findOne({ title })
     if (product) {
         return next(new ErrorClass("this title is already taken", StatusCodes.BAD_REQUEST))
     }
-    // console.log(req.files);
     let video, image, added, imagesDB = [];
-    // console.log("{ files: req.files }");
     if (req.files) {
         let { mainImage, images, video } = req.files;
         if (mainImage) {
@@ -80,6 +78,10 @@ export const updateProduct = async (req, res, next) => {
                 use_filename: false,
                 unique_filename: false
             })
+            // await cloudinary.api.delete_folder('image/upload/v1678473644/MainImages/three.jpgBsQ3CQ_zMhHk9BPVZ3z8y').catch(err=>{
+            //     console.log({err});
+            // })
+            // console.log({ image });
         }
         if (images?.length) {
             imagesDB = []
@@ -127,74 +129,6 @@ export const getAllproducts = async (req, res, next) => {
     return res.status(StatusCodes.ACCEPTED).json({ result: products })
 }
 
-export const updateMainImage = async (req, res, next) => {
-    console.log(req.file);
-    if (!req.file) {
-        return next(new ErrorClass("please send the Main Image", StatusCodes.BAD_REQUEST))
-    }
-    const { _id } = req.params
-    const product = await productModel.findById(_id);
-    if (!product) {
-        return next(new ErrorClass("product not found", StatusCodes.NOT_FOUND))
-    }
-    const image = await cloudinary.uploader.upload(req.file.path, {
-        folder: `MainImages/${req.file.originalname + nanoid()}`,
-        public_id: req.file.originalname + nanoid(),
-        use_filename: true,
-        unique_filename: false
-    })
-    console.log({ image });
-    const updated = await productModel.updateOne({ _id }, { mainImage: image.secure_url })
-    res.json({ value: "Done", updated });
-}
-
-export const updateVideo = async (req, res, next) => {
-    console.log(req.file);
-    if (!req.file) {
-        return next(new ErrorClass("please send the Main Image", StatusCodes.BAD_REQUEST))
-    }
-    const { _id } = req.params
-    const product = await productModel.findById(_id);
-    if (!product) {
-        return next(new ErrorClass("product not found", StatusCodes.NOT_FOUND))
-    }
-    const video = await cloudinary.uploader.upload(req.file.path, {
-        folder: `videos/${req.file.originalname + nanoid()}`,
-        public_id: req.file.originalname + nanoid(),
-        use_filename: true,
-        unique_filename: false,
-        resource_type: "video"
-    })
-    const updated = await productModel.updateOne({ _id }, { video: video.secure_url })
-    res.json({ value: "Done", updated });
-}
-
-export const udpateImages = async (req, res, next) => {
-    console.log({ body: req.body });
-    if (!req.files || !req.files.length) {
-        return next(new ErrorClass("please send the Main Image", StatusCodes.BAD_REQUEST))
-    }
-    const images = req.files
-    const { _id } = req.params
-    const product = await productModel.findById(_id);
-    if (!product) {
-        return next(new ErrorClass("product not found", StatusCodes.NOT_FOUND))
-    }
-    const imagesDB = product.images
-    for (const image of images) {
-        const img = await cloudinary.uploader.upload(image.path, {
-            folder: `Images/${image.originalname + nanoid()}`,
-            public_id: image.originalname + nanoid(),
-            use_filename: true,
-            unique_filename: false,
-        })
-        console.log(img.secure_url);
-        imagesDB.push(img.secure_url)
-    }
-    console.log({ imagesDB });
-    const updated = await productModel.updateOne({ _id }, { images: imagesDB })
-    res.json({ value: "Done", updated });
-}
 
 
 

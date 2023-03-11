@@ -4,22 +4,30 @@ import {
     StatusCodes
 } from 'http-status-codes';
 import adminModel from '../../DB/models/admin.js';
+import userModel from '../../DB/models/userModel.js';
 
 export const roles = {
-    admin:"admin",
-    superAdmin:"superAdmin",
+    admin: "admin",
+    superAdmin: "superAdmin",
+    user: "user"
 }
 Object.freeze(roles)
 
 
-export const auth =  (roles) => {
+export const auth = (roles) => {
     return async (req, res, next) => {
         const startToken = req.headers.token;
         if (startToken) {
             if (startToken.startsWith(process.env.TokenStart)) {
                 const token = startToken.split(' ')[1]
                 const userData = jwt.verify(token, process.env.tokenSecret)
-                const user = await adminModel.findById(userData.id).select('-password')
+                let user
+                if (roles.includes("user")) {
+                    user = await userModel.findById(userData.id).select('-password')
+
+                } else if (roles.includes("admin") || roles.includes("superAdmin")) {
+                    user = await adminModel.findById(userData.id).select('-password')
+                } 
                 if (user) {
                     if (roles.includes(user.role)) {
                         req.user = user

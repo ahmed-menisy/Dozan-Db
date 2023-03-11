@@ -36,20 +36,6 @@ router.get('/products',
     auth([roles.admin, roles.superAdmin]),
     asyncErrorHandler(product.getAllproducts)
 )
-router.patch('/update-main-image/:_id',
-    auth([roles.admin, roles.superAdmin]),
-    myMulter(filesValidation.image).single('image'),
-    asyncErrorHandler(product.updateMainImage)
-)
-router.patch('/update-video/:_id',
-    auth([roles.admin, roles.superAdmin]),
-    myMulter(filesValidation.video).single('video'),
-    asyncErrorHandler(product.updateVideo)
-)
-router.patch('/update-images/:_id',
-    auth([roles.admin, roles.superAdmin]),
-    myMulter(filesValidation.image).array('files', 5),
-    asyncErrorHandler(product.udpateImages)
-)
+
 
 export default router

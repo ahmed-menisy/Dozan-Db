@@ -19,7 +19,14 @@ const validation = (valSchema) => {
         if (!validationError.length) {
             next()
         } else {
-            res.status(StatusCodes.BAD_REQUEST).json({ message: "validationError", validationError })
+            const messages = []
+            validationError.forEach(error => {
+                error.map(err => {
+                    messages.push(err.message)
+
+                })
+            });
+            res.status(StatusCodes.BAD_REQUEST).json({ message: "validationError", Error: messages })
         }
     }
 }
