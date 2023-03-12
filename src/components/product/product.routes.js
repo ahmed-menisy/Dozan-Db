@@ -33,7 +33,6 @@ router.delete('/delete-product/:_id',
 );
 router.get('/products',
     validation(productValidation.NoDataSchema),
-    auth([roles.admin, roles.superAdmin]),
     asyncErrorHandler(product.getAllproducts)
 )
 
