@@ -5,6 +5,7 @@ import {
     StatusCodes
 } from 'http-status-codes';
 import ErrorClass from "../../utils/ErrorClass.js";
+import { paginate } from "../../utils/pagination.js";
 
 
 
@@ -121,7 +122,9 @@ export const deleteProduct = async (req, res, next) => {
 }
 
 export const getAllproducts = async (req, res, next) => {
-    const products = await productModel.find()
+    const {size ,page} = req.query
+    const {skip,limit} = paginate(page,size)
+    const products = await productModel.find().skip(skip).limit(limit)
 
     if (!products.length) {
         return next(new ErrorClass('No products available', StatusCodes.NOT_FOUND));
@@ -131,5 +134,15 @@ export const getAllproducts = async (req, res, next) => {
 
 
 
+export const sort = async(req,res,next)=>{
+    const {size ,page} = req.query
+    const {skip,limit} = paginate(page,size)
+    const products = await productModel.find().skip(skip).limit(limit).sort({ rate: -1, reviewNo: 1 })
 
+    if (!products.length) {
+        return next(new ErrorClass('No products available', StatusCodes.NOT_FOUND));
+    }
+    return res.status(StatusCodes.ACCEPTED).json({ result: products })
+
+}
 

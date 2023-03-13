@@ -32,6 +32,16 @@ export const deleteProductSchema = {
     }),
     query: joi.object().required().keys({}),
 }
+
+export const getProducts = {
+    body: joi.object().required().keys({}),
+    params: joi.object().required().keys({}),
+    query: joi.object().required().keys({
+        page:joi.number().min(1),
+        size:joi.number().min(1).max(20).message('size must be a number between 1 and 20'),
+    }),
+}
+
 export const NoDataSchema = {
     body: joi.object().required().keys({}),
     params: joi.object().required().keys({}),

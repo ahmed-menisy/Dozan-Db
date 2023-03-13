@@ -32,9 +32,13 @@ router.delete('/delete-product/:_id',
     asyncErrorHandler(product.deleteProduct)
 );
 router.get('/products',
-    validation(productValidation.NoDataSchema),
+    validation(productValidation.getProducts),
     asyncErrorHandler(product.getAllproducts)
 )
 
+router.get('/products-sorted',
+    validation(productValidation.getProducts),
+    asyncErrorHandler(product.sort)
+)
 
 export default router

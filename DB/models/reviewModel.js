@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import productModel from './productModel.js';
 
 const reviewSchema = new mongoose.Schema({
     user: {
@@ -14,7 +15,7 @@ const reviewSchema = new mongoose.Schema({
     rate: {
         type: Number,
         required: true,
-        enum: [1, 2, 3, 4, 5]
+        enum: [0,1, 2, 3, 4, 5]
     },
     comment: {
         type: String,
@@ -27,3 +28,4 @@ const reviewSchema = new mongoose.Schema({
 
 const reviewModel = new mongoose.model('Review', reviewSchema)
 export default reviewModel
+
