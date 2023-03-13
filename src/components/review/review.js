@@ -10,7 +10,6 @@ export const createReview = async (req, res, next) => {
     const { productId, rate, comment } = req.body;
     const user = req.user._id;
     const product = await productModel.findById(productId);
-    console.log({product});
     if (!product) {
         return next(new ErrorClass("in-valid product Id", StatusCodes.NOT_FOUND))
     }
@@ -22,7 +21,6 @@ export const createReview = async (req, res, next) => {
     product.rate = newRate
     product.reviewNo = no
     await product.save()
-    console.log({sum, newRate, no, rate });
 
     res.status(StatusCodes.ACCEPTED).json({ message: "done", result: review });
 }
