@@ -25,5 +25,9 @@ router.get('/get-all-categories',
     asyncErrorHandler(category.getAllCategories)
 )
 
+router.get('/get-category-by-id/:categoryId',
+    validation(Val.getCategoryById),
+    asyncErrorHandler(category.getCategoryById)
+)
 
 export default router
