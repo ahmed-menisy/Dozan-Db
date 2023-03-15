@@ -36,5 +36,10 @@ router.get('/get-orders',
     asyncErrorHandler(auth([roles.admin, roles.superAdmin])),
     asyncErrorHandler(order.getOrders)
 )
+router.get('/get-user-orders/:userId',
+    validation(Val.getUserOrderSchema),
+    asyncErrorHandler(auth([roles.admin, roles.superAdmin, roles.user])),
+    asyncErrorHandler(order.getUserOrders)
+)
 
 export default router

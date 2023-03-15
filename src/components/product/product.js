@@ -6,6 +6,7 @@ import {
 } from 'http-status-codes';
 import ErrorClass from "../../utils/ErrorClass.js";
 import { paginate } from "../../utils/pagination.js";
+import reviewModel from "../../../DB/models/reviewModel.js";
 
 
 
@@ -79,10 +80,6 @@ export const updateProduct = async (req, res, next) => {
                 use_filename: false,
                 unique_filename: false
             })
-            // await cloudinary.api.delete_folder('image/upload/v1678473644/MainImages/three.jpgBsQ3CQ_zMhHk9BPVZ3z8y').catch(err=>{
-            //     console.log({err});
-            // })
-            // console.log({ image });
         }
         if (images?.length) {
             imagesDB = []
@@ -121,7 +118,7 @@ export const deleteProduct = async (req, res, next) => {
     return res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: product })
 }
 
-export const getAllproducts = async (req, res, next) => {
+export const getAllProducts = async (req, res, next) => {
     const {size ,page} = req.query
     const {skip,limit} = paginate(page,size)
     const products = await productModel.find().skip(skip).limit(limit)
@@ -132,7 +129,17 @@ export const getAllproducts = async (req, res, next) => {
     return res.status(StatusCodes.ACCEPTED).json({ result: products })
 }
 
+export const getProductById = async (req, res, next) => {
+    const {productId} = req.params;
+    let product = await productModel.findById(productId)
 
+    if (!product) {
+        return next(new ErrorClass('No product found', StatusCodes.NOT_FOUND));
+    }
+    const reviews = await reviewModel.find({product:productId})
+    product.reviews = reviews
+    return res.status(StatusCodes.ACCEPTED).json({ result: product,reviews })
+}
 
 export const sort = async(req,res,next)=>{
     const {size ,page} = req.query
@@ -145,4 +152,6 @@ export const sort = async(req,res,next)=>{
     return res.status(StatusCodes.ACCEPTED).json({ result: products })
 
 }
+
+
 

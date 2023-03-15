@@ -37,9 +37,19 @@ export const getProducts = {
     body: joi.object().required().keys({}),
     params: joi.object().required().keys({}),
     query: joi.object().required().keys({
-        page:joi.number().min(1),
-        size:joi.number().min(1).max(20).message('size must be a number between 1 and 20'),
+        page: joi.number().min(1),
+        size: joi.number().min(1).max(20).message('size must be a number between 1 and 20'),
     }),
+}
+
+
+export const getProductById = {
+    body: joi.object().required().keys({}),
+    params: joi.object().required().keys({
+        productId: joi.string().required().max(24).min(24)
+    }),
+    query: joi.object().required().keys({}),
+
 }
 
 export const NoDataSchema = {

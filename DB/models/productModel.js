@@ -32,7 +32,7 @@ const productSchema = new mongoose.Schema({
     reviewNo: {
         type: Number,
         default: null
-    },
+    }
 }, {
     timestamps: true
 })

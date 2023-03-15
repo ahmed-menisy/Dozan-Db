@@ -10,7 +10,6 @@ export const createReview = async (req, res, next) => {
     const { productId, rate, comment } = req.body;
     const user = req.user._id;
     const product = await productModel.findById(productId);
-    console.log({product});
     if (!product) {
         return next(new ErrorClass("in-valid product Id", StatusCodes.NOT_FOUND))
     }
@@ -22,7 +21,72 @@ export const createReview = async (req, res, next) => {
     product.rate = newRate
     product.reviewNo = no
     await product.save()
-    console.log({sum, newRate, no, rate });
-
     res.status(StatusCodes.ACCEPTED).json({ message: "done", result: review });
+}
+export const update = async (req, res, next) => {
+    const { reviewId } = req.params
+    // check for review
+    const review = await reviewModel.findById(reviewId)
+    if (!review) {
+        return next(new ErrorClass("in-valid review ID", 404))
+    }
+    // console.log({ review });
+
+    const user = req.user._id;
+    // check if the user is authorized to update this review or not
+    if (review.user.toString() != user) {
+        return next(new ErrorClass("You are not allowed to update this review"))
+    }
+
+    const { rate, comment } = req.body;
+    if (rate != review.rate) {
+        const product = await productModel.findById(review.product);
+        const sum = (product.rate * product.reviewNo) + rate - review.rate
+        const newRate = sum / product.reviewNo
+        product.rate = newRate
+        await product.save()
+    }
+    review.rate = rate
+    review.comment = comment
+    await review.save();
+    res.status(StatusCodes.ACCEPTED).json({ message: "done", result: review });
+}
+export const deleteReview = async (req, res, next) => {
+    const { reviewId } = req.params
+    // check for review
+    const review = await reviewModel.findById(reviewId)
+    if (!review) {
+        return next(new ErrorClass("in-valid review ID", 404))
+    }
+
+    const user = req.user._id;
+    // check if the user is authorized to update this review or not
+    if (review.user.toString() != user) {
+        return next(new ErrorClass("You are not allowed to update this review"))
+    }
+    const product = await productModel.findById(review.product);
+    const sum = (product.rate * product.reviewNo) - review.rate
+    const newRate = sum / (product.reviewNo - 1)
+    product.rate = newRate
+
+    product.reviewNo = product.reviewNo - 1
+    await product.save()
+
+    const deleted = await reviewModel.deleteOne({ _id: reviewId })
+    res.status(StatusCodes.ACCEPTED).json({ message: "done", result: "deleted" });
+}
+export const getAllReviews = async (req, res, next) => {
+    const reviews = await reviewModel.find().populate([
+        {
+            path: "user",
+            select: "email"
+        },
+        {
+            path: "product"
+        }
+    ]);
+    if (!reviews.length) {
+        return next(new ErrorClass("No reviews founded", 404))
+    }
+    res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: reviews })
 }

@@ -13,4 +13,21 @@ router.post('/create-review',
     asyncErrorHandler(auth([roles.user])),
     asyncErrorHandler(review.createReview)
 )
+
+router.patch('/update-review/:reviewId',
+    validation(Val.update),
+    asyncErrorHandler(auth([roles.user])),
+    asyncErrorHandler(review.update)
+)
+
+router.delete('/delete-review/:reviewId',
+    validation(Val.deleteReview),
+    asyncErrorHandler(auth([roles.user])),
+    asyncErrorHandler(review.deleteReview)
+)
+
+router.get('/get-all-reviews',
+    validation(Val.NoDataSchema),
+    asyncErrorHandler(review.getAllReviews)
+)
 export default router

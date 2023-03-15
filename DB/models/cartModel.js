@@ -15,39 +15,20 @@ const product = new mongoose.Schema({
     _id: false
 })
 
-const orderSchema = new mongoose.Schema({
+const cartSchema = new mongoose.Schema({
     user: {
         type: mongoose.Types.ObjectId,
         required: true,
         ref: 'User'
     },
-    phone: {
-        type: Number,
-        required: true
-    },
-    address: {
-        type: String,
-        required: true,
-    },
     products: [product],
     totalCost: {
         type: Number,
         required: true
-    },
-    comment: {
-        type: String
-    },
-    delivered: {
-        type: Boolean,
-        default: false
-    },
-    payMethod: {
-        type: String,
-        default: "Visa"
     }
 }, {
     timestamps: true
 })
 
-const orderModel = new mongoose.model('Order', orderSchema)
-export default orderModel
+const cartModel = new mongoose.model('Cart', cartSchema)
+export default cartModel
