@@ -7,11 +7,17 @@ import {
 import ErrorClass from "../../utils/ErrorClass.js";
 import { paginate } from "../../utils/pagination.js";
 import reviewModel from "../../../DB/models/reviewModel.js";
+import categoryModel from "../../../DB/models/categoryModel.js";
 
 
 
 export const addProduct = async (req, res, next) => {
-    const { title, price, description } = req.body
+    const { title, price, description, categoryId } = req.body
+
+    const catg = await categoryModel.findById(categoryId)
+    if (!catg) {
+        return next(new ErrorClass("category not found", StatusCodes.NOT_FOUND))
+    }
 
     const product = await productModel.findOne({ title })
     if (product) {
@@ -48,10 +54,18 @@ export const addProduct = async (req, res, next) => {
                 resource_type: "video"
             })
         }
+
         added = await productModel.insertMany({ title, price, description, mainImage: image?.secure_url, video: video?.secure_url, images: imagesDB })
+
     } else {
         added = await productModel.insertMany({ title, price, description })
     }
+    let cat = await categoryModel.updateOne({ _id: categoryId }, {
+        $push: {
+            products: added[0]._id
+        }
+    })
+    console.log({cat});
     res.status(StatusCodes.CREATED).json({ message: "Done", result: added })
 
 }
@@ -119,8 +133,8 @@ export const deleteProduct = async (req, res, next) => {
 }
 
 export const getAllProducts = async (req, res, next) => {
-    const {size ,page} = req.query
-    const {skip,limit} = paginate(page,size)
+    const { size, page } = req.query
+    const { skip, limit } = paginate(page, size)
     const products = await productModel.find().skip(skip).limit(limit)
 
     if (!products.length) {
@@ -130,20 +144,20 @@ export const getAllProducts = async (req, res, next) => {
 }
 
 export const getProductById = async (req, res, next) => {
-    const {productId} = req.params;
+    const { productId } = req.params;
     let product = await productModel.findById(productId)
 
     if (!product) {
         return next(new ErrorClass('No product found', StatusCodes.NOT_FOUND));
     }
-    const reviews = await reviewModel.find({product:productId})
+    const reviews = await reviewModel.find({ product: productId })
     product.reviews = reviews
-    return res.status(StatusCodes.ACCEPTED).json({ result: product,reviews })
+    return res.status(StatusCodes.ACCEPTED).json({ result: product, reviews })
 }
 
-export const sort = async(req,res,next)=>{
-    const {size ,page} = req.query
-    const {skip,limit} = paginate(page,size)
+export const sort = async (req, res, next) => {
+    const { size, page } = req.query
+    const { skip, limit } = paginate(page, size)
     const products = await productModel.find().skip(skip).limit(limit).sort({ rate: -1, reviewNo: 1 })
 
     if (!products.length) {

@@ -17,18 +17,18 @@ export const createCategory = async (req, res, next) => {
     res.status(StatusCodes.CREATED).json({ message: "Done", result: add });
 }
 
-export const update  = async (req,res,next)=>{
+export const update = async (req, res, next) => {
     let { name } = req.body;
-    const {categoryId} = req.params
+    const { categoryId } = req.params
     const category = await categoryModel.findById(categoryId)
     if (!category) {
         return next(new ErrorClass("category not found", StatusCodes.NOT_FOUND))
     }
     name = name.toLowerCase()
-    const isNameExist =await categoryModel.findOne({
+    const isNameExist = await categoryModel.findOne({
         name,
-        _id:{
-            $ne :categoryId
+        _id: {
+            $ne: categoryId
         }
     })
     if (isNameExist) {
@@ -38,4 +38,21 @@ export const update  = async (req,res,next)=>{
     await category.save()
     res.status(StatusCodes.CREATED).json({ message: "Done", result: category });
 
+}
+
+
+export const getAllCategories = async (req, res, next) => {
+    const categories = await categoryModel.find().populate([{
+        path: "products",
+    }])
+    res.json({ message: "Done", result: categories })
+}
+
+
+export const getCategoryById = async (req, res, next) => {
+    const { categoryId } = req.params
+    const categories = await categoryModel.findById(categoryId).populate([{
+        path: "products",
+    }])
+    res.json({ message: "Done", result: categories })
 }

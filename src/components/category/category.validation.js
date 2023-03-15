@@ -19,11 +19,8 @@ export const update = {
 }
 
 
-/*
-
 export const NoDataSchema = {
     body: joi.object().required().keys({}),
     params: joi.object().required().keys({}),
     query: joi.object().required().keys({}),
 }
-*/

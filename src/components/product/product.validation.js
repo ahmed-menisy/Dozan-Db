@@ -4,7 +4,8 @@ export const addProductSchema = {
     body: joi.object().required().keys({
         title: joi.string().required(),
         price: joi.number().required(),
-        description: joi.string().required()
+        description: joi.string().required(),
+        categoryId:joi.string().required().max(24).min(24)
     }),
     params: joi.object().required().keys({}),
     query: joi.object().required().keys({}),

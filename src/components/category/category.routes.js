@@ -10,14 +10,19 @@ const router = Router();
 
 router.post('/create-category',
     validation(Val.createVal),
-    asyncErrorHandler(auth([roles.superAdmin,roles.admin])),
+    asyncErrorHandler(auth([roles.superAdmin, roles.admin])),
     asyncErrorHandler(category.createCategory)
 )
 
 router.patch('/update-category/:categoryId',
     validation(Val.update),
-    asyncErrorHandler(auth([roles.admin,roles.superAdmin])),
+    asyncErrorHandler(auth([roles.admin, roles.superAdmin])),
     asyncErrorHandler(category.update)
+)
+
+router.get('/get-all-categories',
+    validation(Val.NoDataSchema),
+    asyncErrorHandler(category.getAllCategories)
 )
 
 
