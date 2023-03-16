@@ -46,13 +46,9 @@ export const getAllCategories = async (req, res, next) => {
 
     const arrayStatus = { // sorted or not
         not_sorted: {
-            skip,
-            limit,
         },
         sorted: {
-            skip,
-            limit,
-            sort: { rate:-1, reviewNo:-1 }
+            sort: { rate: -1, reviewNo: -1 }
         }
     }
 
@@ -60,8 +56,30 @@ export const getAllCategories = async (req, res, next) => {
         path: 'products',
         options: arrayStatus[sort],
     })
+    const newCategories = []
+    // let productsCount, totalPages, currentPage
+    for (let category of categories) {
+        const productsCount = category.products.length;
+        console.log({ skip, size: Number(skip) + Number(limit) });
+        let products = category.products.splice(skip, limit)
+        console.log({ products });
+        const totalPages = Math.ceil(productsCount / size)
+        // console.log(totalPages);
+        newCategories.push({
+            _id: category._id,
+            name: category.name,
+            products,
+            createdAt: category.createdAt,
+            updatedAt: category.updatedAt,
+            totalPages,
+            productsCount,
+            returnedProducts: products.length,
+            page: checkPage(page, totalPages)
+        })
+    }
+
     res.json({
-        message: "Done", result: categories
+        message: "Done", result: newCategories
     })
 }
 
@@ -70,27 +88,48 @@ export const getCategoryById = async (req, res, next) => {
     let { page, size, sort } = req.query;
     const { skip, limit } = paginate(page, size)
     const arrayStatus = { // sorted or not
-        not_sorted: {
-            skip,
-            limit,
-        },
+        not_sorted: {},
         sorted: {
-            skip,
-            limit,
-            sort: { rate:-1, reviewNo:-1 }
+            sort: { rate: -1, reviewNo: -1 }
         }
     }
 
 
-    const categories = await categoryModel.findById(categoryId).populate([{
+    let category = await categoryModel.findById(categoryId).populate([{
         path: "products",
-        options: {
-            skip,
-            limit,
-            options: arrayStatus[sort],
-
-
-        },
+        options: arrayStatus[sort],
     }])
-    res.json({ message: "Done", result: categories })
+
+
+    const productsCount = category.products.length;
+    let products = category.products.splice(skip, limit)
+    const totalPages = Math.ceil(productsCount / size)
+    category = {
+        _id: category._id,
+        name: category.name,
+        products,
+        createdAt: category.createdAt,
+        updatedAt: category.updatedAt,
+        totalPages,
+        productsCount,
+        returnedProducts: products.length,
+        page: checkPage(page, totalPages)
+    }
+    res.json({ message: "Done", result: category })
+
+}
+
+
+
+
+
+
+
+
+function checkPage(page, totalPages) {
+    if (!page || !totalPages) {
+        return 0
+    } else {
+        return Number(page)
+    }
 }

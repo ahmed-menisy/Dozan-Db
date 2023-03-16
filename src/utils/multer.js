@@ -17,7 +17,7 @@ export const myMulter = (allowedFiles = filesValidation.image) => {
     const fileFilter = (req, file, cb) => {
         // console.log(req.body);
         if (file.originalname.match(allowedFiles)) {
-            console.log({file});
+            console.log({ file });
             cb(null, true)
         } else {
             cb(new ErrorClass('NOT ALLOWED FILES'), false)
