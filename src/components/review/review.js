@@ -90,3 +90,4 @@ export const getAllReviews = async (req, res, next) => {
     }
     res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: reviews })
 }
+

@@ -21,7 +21,7 @@ router.patch('/update-category/:categoryId',
 )
 
 router.get('/get-all-categories',
-    validation(Val.NoDataSchema),
+    validation(Val.getAllCategories),
     asyncErrorHandler(category.getAllCategories)
 )
 

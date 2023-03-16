@@ -27,4 +27,3 @@ export const addUser = async (req, res, next) => {
     },process.env.tokenSecret)
     return res.status(StatusCodes.CREATED).json({ message: "Done",token })
 }
-

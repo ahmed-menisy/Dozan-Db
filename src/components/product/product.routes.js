@@ -10,7 +10,7 @@ router.post('/add-product',
     auth([roles.admin, roles.superAdmin]),
     myMulter(filesValidation.all).fields([
         { name: "mainImage", maxCount: 1 },
-        { name: 'images', maxCount: 5 },
+        { name: 'images', maxCount: 3 },
         { name: 'video', maxCount: 1 }
     ]),
     validation(productValidation.addProductSchema),
@@ -20,7 +20,7 @@ router.patch('/edit-product/:_id',
     auth([roles.admin, roles.superAdmin]),
     myMulter(filesValidation.all).fields([
         { name: "mainImage", maxCount: 1 },
-        { name: 'images', maxCount: 5 },
+        { name: 'images', maxCount: 3 },
         { name: 'video', maxCount: 1 }
     ]),
     validation(productValidation.updateProductSchema),

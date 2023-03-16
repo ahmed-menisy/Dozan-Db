@@ -145,7 +145,7 @@ export const getAllProducts = async (req, res, next) => {
 
 export const getProductById = async (req, res, next) => {
     const { productId } = req.params;
-    let product = await productModel.findById(productId)
+    let product = await productModel.findById(productId,)
 
     if (!product) {
         return next(new ErrorClass('No product found', StatusCodes.NOT_FOUND));

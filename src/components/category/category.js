@@ -3,6 +3,7 @@ import {
     StatusCodes
 } from 'http-status-codes';
 import categoryModel from "../../../DB/models/categoryModel.js";
+import { paginate } from "../../utils/pagination.js";
 
 
 export const createCategory = async (req, res, next) => {
@@ -37,22 +38,59 @@ export const update = async (req, res, next) => {
     category.name = name
     await category.save()
     res.status(StatusCodes.CREATED).json({ message: "Done", result: category });
-
 }
-
 
 export const getAllCategories = async (req, res, next) => {
-    const categories = await categoryModel.find().populate([{
-        path: "products",
-    }])
-    res.json({ message: "Done", result: categories })
-}
+    let { page, size, sort } = req.query;
+    const { skip, limit } = paginate(page, size)
 
+    const arrayStatus = { // sorted or not
+        not_sorted: {
+            skip,
+            limit,
+        },
+        sorted: {
+            skip,
+            limit,
+            sort: { rate:-1, reviewNo:-1 }
+        }
+    }
+
+    const categories = await categoryModel.find({}).populate({
+        path: 'products',
+        options: arrayStatus[sort],
+    })
+    res.json({
+        message: "Done", result: categories
+    })
+}
 
 export const getCategoryById = async (req, res, next) => {
     const { categoryId } = req.params
+    let { page, size, sort } = req.query;
+    const { skip, limit } = paginate(page, size)
+    const arrayStatus = { // sorted or not
+        not_sorted: {
+            skip,
+            limit,
+        },
+        sorted: {
+            skip,
+            limit,
+            sort: { rate:-1, reviewNo:-1 }
+        }
+    }
+
+
     const categories = await categoryModel.findById(categoryId).populate([{
         path: "products",
+        options: {
+            skip,
+            limit,
+            options: arrayStatus[sort],
+
+
+        },
     }])
     res.json({ message: "Done", result: categories })
 }
