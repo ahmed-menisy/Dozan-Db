@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import {
     StatusCodes
 } from 'http-status-codes';
+import cartModel from "../../../DB/models/cartModel.js";
 
 
 export const addUser = async (req, res, next) => {
@@ -13,7 +14,7 @@ export const addUser = async (req, res, next) => {
         const token = jwt.sign({
             id: isExist._id,
             email: isExist._email
-        },process.env.tokenSecret)
+        }, process.env.tokenSecret)
         return res.status(StatusCodes.ACCEPTED).json({
             message: "Done",
             token
@@ -24,6 +25,8 @@ export const addUser = async (req, res, next) => {
     const token = jwt.sign({
         id: user._id,
         email: user._email
-    },process.env.tokenSecret)
-    return res.status(StatusCodes.CREATED).json({ message: "Done",token })
+    }, process.env.tokenSecret)
+    const cart = new cartModel({ user: user._id })
+    await cart.save();
+    return res.status(StatusCodes.CREATED).json({ message: "Done", token })
 }

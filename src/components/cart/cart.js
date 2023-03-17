@@ -2,39 +2,57 @@ import ErrorClass from "../../utils/ErrorClass.js";
 import {
     StatusCodes
 } from 'http-status-codes';
-import orderModel from "../../../DB/models/orderModel.js";
+import cartModel from "../../../DB/models/cartModel.js";
 import productModel from "../../../DB/models/productModel.js";
 import userModel from "../../../DB/models/userModel.js";
 
 
-/**
- * Get user Order
-*/
 
-export const createOrder = async (req, res, next) => {
-    const { phone, address, products, comment } = req.body
+export const addToCart = async (req, res, next) => {
+    const { productDetails } = req.body
     const user = req.user._id
-    let totalCost = 0
-    let notFound = [], founded = [];
-    const productsFounded = await productModel.find({ _id
-        : { $in: products.map(product => product.product) } });
-    // Validate that all the product IDs were found
-    if (productsFounded.length !== products.length) {
-        notFound = products.filter(product => !productsFounded.find(p => p._id.toString() === product.product));
+    const product = await productModel.findById(productDetails.product)
+    if (!product) {
+        return next(new ErrorClass("Product not found", 404))
     }
-    // Calculate the total cost of the order
-    for (const product of productsFounded) {
-        const orderProduct = products.find(p => p.product === product._id.toString());
-        totalCost += Number(product.price) * Number(orderProduct.quantity);
-        founded.push({ product: orderProduct.product, quantity: orderProduct.quantity });
+
+
+
+    const cart = await cartModel.findOne({ user })
+
+    const productExist = cart.products.findIndex((ele) => {
+        return ele.product == productDetails.product
+    })
+    // console.log({ productExist });
+    if (productExist == -1) {
+        // const upd = cart.products.push(productDetails)
+        const cart = await cartModel.updateOne({ user }, {
+            $push: {
+                products: productDetails
+            }
+        })
+
+    } else {
+        cart.products[productExist].quantity = cart.products[productExist].quantity + 1
+        await cart.save();
     }
-    if (notFound.length == products.length) {
-        return next(new ErrorClass("All products not found", 404))
+    res.status(StatusCodes.CREATED).json({ message: "message", cart })
+
+}
+
+
+export const getUserCart = async (req, res, next) => {
+    const user = req.user._id
+
+    const carts = await cartModel.findOne({ user }).populate([{
+        path: 'products.product',
+        select: 'title price description video images mainImage'
+    }])
+    let totalCost = 0;
+    for (const product of carts.products) {
+        totalCost += Number(product.product.price) * Number(product.quantity)
     }
-    const order = new orderModel({ totalCost, user, phone, address, products: founded, comment })
-    const Order = await order.save()
-    notFound.length ? res.status(StatusCodes.ACCEPTED).json({ message: "Done", InValidProductId: `Products with IDs [ ${notFound.map(product => product.product).join(', ')} ] not found`, result: Order }) :
-        res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: Order })
+    res.status(StatusCodes.ACCEPTED).json({ result: carts, totalCost })
 }
 
 export const updateProduct = async (req, res, next) => {
@@ -118,27 +136,3 @@ export const getOrders = async (req, res, next) => {
     res.status(StatusCodes.ACCEPTED).json({ result: orders })
 }
 
-export const getUserOrders = async (req, res, next) => {
-    const { status } = req.query
-    const { userId } = req.params
-    // console.log({userId});
-    const user = await userModel.findById(userId)
-    if (!user) {
-        return next(new ErrorClass("user not found",404))
-    }
-    const delivered = {
-        all: {
-            $or: [
-                { delivered: true }, { delivered: false }
-            ]
-        },
-        delivered: { delivered: true  },
-        not_delivered: { delivered: false}
-    }   
-    delivered.user = userId
-    const orders = await orderModel.find(delivered[status]).populate([{
-        path: 'products.product',
-        select: 'title price description video images mainImage'
-    }])
-    res.status(StatusCodes.ACCEPTED).json({ result: orders })
-}

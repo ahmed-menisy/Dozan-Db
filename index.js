@@ -10,6 +10,7 @@ import productRouter from './src/components/product/product.routes.js';
 import orderRouter from './src/components/order/order.routes.js';
 import reviewRouter from './src/components/review/review.routes.js';
 import categoryRouter  from "./src/components/category/category.routes.js";
+import cartRouter  from "./src/components/cart/cart.routes.js";
 import cors from "cors"
 config()
 connection()
@@ -20,6 +21,8 @@ app.use('/api/v1/product',productRouter)
 app.use('/api/v1/order',orderRouter)
 app.use('/api/v1/review',reviewRouter)
 app.use('/api/v1/category',categoryRouter)
+app.use('/api/v1/cart',cartRouter)
+// app.use('/api/v1/category',categoryRouter)
 
 
 

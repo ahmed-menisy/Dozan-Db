@@ -60,9 +60,7 @@ export const getAllCategories = async (req, res, next) => {
     // let productsCount, totalPages, currentPage
     for (let category of categories) {
         const productsCount = category.products.length;
-        console.log({ skip, size: Number(skip) + Number(limit) });
         let products = category.products.splice(skip, limit)
-        console.log({ products });
         const totalPages = Math.ceil(productsCount / size)
         // console.log(totalPages);
         newCategories.push({
@@ -76,6 +74,7 @@ export const getAllCategories = async (req, res, next) => {
             returnedProducts: products.length,
             page: checkPage(page, totalPages)
         })
+
     }
 
     res.json({
