@@ -50,19 +50,23 @@ export const getUserCart = async (req, res, next) => {
 }
 
 export const deleteProduct = async (req, res, next) => {
-    const orderID = req.params._id
-    const order = await orderModel.findById(orderID)
-
-    if (!order) {
-        return next(new ErrorClass("Order not found", 404))
-    }
     const user = req.user._id
+    const productId = req.params.productId
+    const cart = await cartModel.findOne({ user });
 
-    if (order.user.toString() != user) {
-        return next(new ErrorClass("you are not allowed to delete this order", StatusCodes.UNAUTHORIZED))
+    // find the index of the product subdocument in the products array
+    const productIndex = cart.products.findIndex((product) => product.product.equals(productId));
+  
+    if (productIndex === -1) {
+      return  next(new ErrorClass('Product not found in cart',404));
     }
-    const deletedOrder = await orderModel.deleteOne({ _id: order._id })
-    res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: deletedOrder })
+  
+    // remove the product subdocument at the specified index
+    cart.products.splice(productIndex, 1);
+  
+    await cart.save();
+
+    res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: cart })
 }
 
 

@@ -31,10 +31,10 @@ export const updateOrderVal = {
     query: joi.object().required().keys({}),
 }
 
-export const deleteOrderVal = {
+export const deleteCartVal = {
     body: joi.object().required().keys({}),
     params: joi.object().required().keys({
-        _id: joi.string().max(24).min(24).required()
+        productId: joi.string().max(24).min(24).required()
     }),
     query: joi.object().required().keys({}),
 }
