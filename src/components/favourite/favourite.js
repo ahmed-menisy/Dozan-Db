@@ -28,7 +28,6 @@ export const addToFavourite = async (req, res, next) => {
         path: 'wishList',
         select: 'title price mainImage rate',
     }])
-    console.log({ wishList });
     res.status(StatusCodes.CREATED).json({ message: "message", result: wishList.wishList })
 }
 
