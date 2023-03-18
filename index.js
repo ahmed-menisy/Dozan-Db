@@ -11,6 +11,7 @@ import orderRouter from './src/components/order/order.routes.js';
 import reviewRouter from './src/components/review/review.routes.js';
 import categoryRouter  from "./src/components/category/category.routes.js";
 import cartRouter  from "./src/components/cart/cart.routes.js";
+import favouriteRouter  from "./src/components/favourite/favourite.routes.js";
 import cors from "cors"
 config()
 connection()
@@ -22,7 +23,7 @@ app.use('/api/v1/order',orderRouter)
 app.use('/api/v1/review',reviewRouter)
 app.use('/api/v1/category',categoryRouter)
 app.use('/api/v1/cart',cartRouter)
-// app.use('/api/v1/category',categoryRouter)
+app.use('/api/v1/favourite',favouriteRouter)
 
 
 

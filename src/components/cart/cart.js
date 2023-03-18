@@ -4,7 +4,6 @@ import {
 } from 'http-status-codes';
 import cartModel from "../../../DB/models/cartModel.js";
 import productModel from "../../../DB/models/productModel.js";
-import userModel from "../../../DB/models/userModel.js";
 
 
 
@@ -68,7 +67,6 @@ export const deleteProduct = async (req, res, next) => {
 
     res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: cart })
 }
-
 
 export const getOrders = async (req, res, next) => {
     const { status } = req.query
