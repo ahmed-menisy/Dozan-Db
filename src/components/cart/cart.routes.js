@@ -12,11 +12,11 @@ router.post('/add-to-cart',
     asyncErrorHandler(cart.addToCart)
 )
 
-// router.patch('/update-cart/:_id',
-//     validation(Val.updateOrderVal),
-//     asyncErrorHandler(auth([roles.user])),
-//     asyncErrorHandler(order.updateProduct)
-// )
+router.patch('/update-cart/:_id',
+    validation(Val.updateCartVal),
+    asyncErrorHandler(auth([roles.user])),
+    asyncErrorHandler(cart.updateCart)
+)
 
 router.delete('/delete-product/:productId',
     validation(Val.deleteCartVal),
@@ -24,12 +24,6 @@ router.delete('/delete-product/:productId',
     asyncErrorHandler(cart.deleteProduct)
 )
 
-
-// router.get('/get-orders',
-//     validation(Val.getOrderSchema),
-//     asyncErrorHandler(auth([roles.admin, roles.superAdmin])),
-//     asyncErrorHandler(order.getOrders)
-// )
 router.get('/get-user-cart',
     validation(Val.noDateSchema),
     asyncErrorHandler(auth([roles.user])),

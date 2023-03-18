@@ -39,13 +39,36 @@ export const getUserCart = async (req, res, next) => {
 
     const carts = await cartModel.findOne({ user }).populate([{
         path: 'products.product',
-        select: 'title price description video images mainImage'
+        select: 'title price description mainImage'
     }])
     let totalCost = 0;
     for (const product of carts.products) {
         totalCost += Number(product.product.price) * Number(product.quantity)
     }
     res.status(StatusCodes.ACCEPTED).json({ result: carts, totalCost })
+}
+
+export const updateCart = async (req, res, next) => {
+
+    const productId = req.params._id
+    const user = req.user._id
+    const { quantity } = req.body;
+    const cart = await cartModel.findOneAndUpdate(
+        { user, 'products.product': productId },
+        { $set: { 'products.$.quantity': quantity } },
+        { new: true }
+    ).populate([{
+        path: 'products.product',
+        select: 'title price description mainImage'
+    }])
+    if (!cart) {
+        return next(new ErrorClass("cart not found", StatusCodes.NOT_FOUND));
+    }
+    let totalCost = 0
+    for (const product of cart.products) {
+        totalCost += Number(product.product.price) * Number(product.quantity)
+    }
+    res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: cart, totalCost })
 }
 
 export const deleteProduct = async (req, res, next) => {

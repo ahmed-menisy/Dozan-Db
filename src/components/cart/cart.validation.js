@@ -13,17 +13,9 @@ export const addToCart = {
     query: joi.object().required().keys({}),
 }
 
-export const updateOrderVal = {
+export const updateCartVal = {
     body: joi.object().required().keys({
-        phone: joi.string().pattern(new RegExp(/^(010|011|012|015)\d{8}$/)).message('Please enter a valid Egyptian phone number'),
-        address: joi.string(),
-        products: joi.array()
-            .items({
-                product: joi.string().max(24).min(24).required(),
-                quantity: joi.number().min(1)
-            })
-            .required(),
-        comment: joi.string().max(2000)
+        quantity:joi.number().min(1).required()
     }),
     params: joi.object().required().keys({
         _id: joi.string().max(24).min(24).required()
