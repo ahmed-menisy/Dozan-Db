@@ -14,7 +14,7 @@ export const addToCart = async (req, res, next) => {
     if (!product) {
         return next(new ErrorClass("Product not found", 404))
     }
-    const cart = await cartModel.findOne({ user})
+    const cart = await cartModel.findOne({ user })
     const productExist = cart.products.findIndex((ele) => {
         return ele.product == productDetails.product
     })
@@ -52,19 +52,14 @@ export const deleteProduct = async (req, res, next) => {
     const user = req.user._id
     const productId = req.params.productId
     const cart = await cartModel.findOne({ user });
-
     // find the index of the product subdocument in the products array
     const productIndex = cart.products.findIndex((product) => product.product.equals(productId));
-  
     if (productIndex === -1) {
-      return  next(new ErrorClass('Product not found in cart',404));
+        return next(new ErrorClass('Product not found in cart', 404));
     }
-  
     // remove the product subdocument at the specified index
     cart.products.splice(productIndex, 1);
-  
     await cart.save();
-
     res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: cart })
 }
 
