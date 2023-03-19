@@ -12,12 +12,14 @@ import userModel from "../../../DB/models/userModel.js";
 */
 
 export const createOrder = async (req, res, next) => {
-    const { phone, address, products, comment } = req.body
+    const { phone, address, products, comment, payMethod } = req.body
     const user = req.user._id
     let totalCost = 0
     let notFound = [], founded = [];
-    const productsFounded = await productModel.find({ _id
-        : { $in: products.map(product => product.product) } });
+    const productsFounded = await productModel.find({
+        _id
+            : { $in: products.map(product => product.product) }
+    });
     // Validate that all the product IDs were found
     if (productsFounded.length !== products.length) {
         notFound = products.filter(product => !productsFounded.find(p => p._id.toString() === product.product));
@@ -31,7 +33,12 @@ export const createOrder = async (req, res, next) => {
     if (notFound.length == products.length) {
         return next(new ErrorClass("All products not found", 404))
     }
-    const order = new orderModel({ totalCost, user, phone, address, products: founded, comment })
+    let order
+    if (!payMethod) {
+        order = new orderModel({ totalCost, user, phone, address, products: founded, comment, payMethod })
+    } else {
+        order = new orderModel({ totalCost, user, phone, address, products: founded, comment })
+    }
     const Order = await order.save()
     notFound.length ? res.status(StatusCodes.ACCEPTED).json({ message: "Done", InValidProductId: `Products with IDs [ ${notFound.map(product => product.product).join(', ')} ] not found`, result: Order }) :
         res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: Order })
@@ -124,7 +131,7 @@ export const getUserOrders = async (req, res, next) => {
     // console.log({userId});
     const user = await userModel.findById(userId)
     if (!user) {
-        return next(new ErrorClass("user not found",404))
+        return next(new ErrorClass("user not found", 404))
     }
     const delivered = {
         all: {
@@ -132,9 +139,9 @@ export const getUserOrders = async (req, res, next) => {
                 { delivered: true }, { delivered: false }
             ]
         },
-        delivered: { delivered: true  },
-        not_delivered: { delivered: false}
-    }   
+        delivered: { delivered: true },
+        not_delivered: { delivered: false }
+    }
     delivered.user = userId
     const orders = await orderModel.find(delivered[status]).populate([{
         path: 'products.product',

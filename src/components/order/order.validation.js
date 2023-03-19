@@ -12,7 +12,8 @@ export const createOrderVal = {
                 quantity:joi.number().min(1).required()
             })
             .required(),
-        comment: joi.string().max(2000)
+        comment: joi.string().max(2000),
+        payMethod:joi.string().valid('Visa','Paypal',"Cash")
     }),
     params: joi.object().required().keys({}),
     query: joi.object().required().keys({}),

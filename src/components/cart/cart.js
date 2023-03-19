@@ -68,7 +68,7 @@ export const updateCart = async (req, res, next) => {
     for (const product of cart.products) {
         totalCost += Number(product.product.price) * Number(product.quantity)
     }
-    res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: cart, totalCost })
+    res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: cart.products, totalCost })
 }
 
 export const deleteProduct = async (req, res, next) => {
