@@ -4,7 +4,7 @@ import joi from 'joi';
 
 export const createOrderVal = {
     body: joi.object().required().keys({
-        phone: joi.string().required().pattern(new RegExp(/^(010|011|012|015)\d{8}$/)).message('Please enter a valid Egyptian phone number'),
+        phone: joi.string().required(),
         address: joi.string().required(),
         products: joi.array()
             .items({
@@ -21,7 +21,7 @@ export const createOrderVal = {
 
 export const updateOrderVal = {
     body: joi.object().required().keys({
-        phone: joi.string().pattern(new RegExp(/^(010|011|012|015)\d{8}$/)).message('Please enter a valid Egyptian phone number'),
+        phone: joi.string(),
         address: joi.string(),
         products: joi.array()
             .items({

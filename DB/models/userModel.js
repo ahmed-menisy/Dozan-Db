@@ -21,12 +21,6 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         default: "user",
-    },
-    phone: {
-        type: String,
-    },
-    address:{
-        type: String,
     }
 }, {
     timestamps: true
