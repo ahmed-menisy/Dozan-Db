@@ -1,12 +1,13 @@
 import Router from 'express';
 import validation from '../../middleware/validation.js';
 import { asyncErrorHandler } from '../../utils/errorHandeling.js';
-import { addUser } from './user.js';
-import { addUserSchema } from './user.validation.js';
+import * as users from './user.js';
+import * as Val from './user.validation.js';
 const router = Router();
 
 
-router.post('/add-user',validation(addUserSchema),asyncErrorHandler(addUser))
+router.post('/signup',validation(Val.signUp),asyncErrorHandler(users.signUp))
+router.post('/signin',validation(Val.signIn),asyncErrorHandler(users.signIn))
 
 
 export default router

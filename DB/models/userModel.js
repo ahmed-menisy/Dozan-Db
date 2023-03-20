@@ -1,6 +1,14 @@
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+    },
+    password: {
+        type: String,
+        required: true,
+    },
     email: {
         type: String,
         required: true,
@@ -10,16 +18,18 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: 'Product'
     }],
-    orders:[{
-        type: mongoose.Types.ObjectId,
-        ref: 'Order'
-    }],
-    role:{
-        type:String,
-        default:"user",
+    role: {
+        type: String,
+        default: "user",
+    },
+    phone: {
+        type: String,
+    },
+    address:{
+        type: String,
     }
 }, {
     timestamps: true
 })
-const userModel = new mongoose.model('User',userSchema)
+const userModel = new mongoose.model('User', userSchema)
 export default userModel
