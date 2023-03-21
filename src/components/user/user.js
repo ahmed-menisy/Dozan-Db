@@ -48,7 +48,6 @@ export const signIn = async (req, res, next) => {
 
 export const checkToken = async (req, res, next) => {
     let { token } = req.body
-    console.log({pro:process.env.tokenSecret});
     token = jwt.verify(token, process.env.tokenSecret)
     const user = await userModel.findById(token.id).select('email name')
     if (!user) {
