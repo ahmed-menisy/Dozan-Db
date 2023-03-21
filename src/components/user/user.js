@@ -8,30 +8,6 @@ import {
 import cartModel from "../../../DB/models/cartModel.js";
 
 
-// export const addUser = async (req, res, next) => {
-//     const { email } = req.body;
-//     const isExist = await userModel.findOne({ email })
-//     if (isExist) {
-//         const token = jwt.sign({
-//             id: isExist._id,
-//             email: isExist._email
-//         }, process.env.tokenSecret)
-//         return res.status(StatusCodes.ACCEPTED).json({
-//             message: "Done",
-//             token
-//         })
-//     }
-//     const user = new userModel({ email });
-//     await user.save();
-//     const token = jwt.sign({
-//         id: user._id,
-//         email: user._email
-//     }, process.env.tokenSecret)
-//     const cart = new cartModel({ user: user._id })
-//     await cart.save();
-//     return res.status(StatusCodes.CREATED).json({ message: "Done", token })
-// }
-
 export const signUp = async (req, res, next) => {
     const { name, email, password } = req.body;
     const isExist = await userModel.findOne({ email })
@@ -58,7 +34,7 @@ export const signIn = async (req, res, next) => {
                 email: user.email,
                 id: user._id
             }
-            const token = jwt.sign(userData, "node")
+            const token = jwt.sign(userData,process.env.tokenSecret)
             await userModel.findByIdAndUpdate(user._id, { isLoggedIn: true })
             res.json({ message: "Done", token })
         } else {
@@ -67,4 +43,16 @@ export const signIn = async (req, res, next) => {
     } else {
         return res.json({ message: "in-valid user information" });
     }
+}
+
+
+export const checkToken = async (req, res, next) => {
+    let { token } = req.body
+    console.log({pro:process.env.tokenSecret});
+    token = jwt.verify(token, process.env.tokenSecret)
+    const user = await userModel.findById(token.id).select('email name')
+    if (!user) {
+        return next(new ErrorClass(false, 404))
+    }
+    res.json({ message: true, user })
 }

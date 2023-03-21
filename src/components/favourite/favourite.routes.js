@@ -12,28 +12,10 @@ router.post('/add-to-wishlist',
     asyncErrorHandler(favourite.addToFavourite)
 )
 
-// router.patch('/update-favourite/:_id',
-//     validation(Val.updateOrderVal),
-//     asyncErrorHandler(auth([roles.user])),
-//     asyncErrorHandler(order.updateProduct)
-// )
-
-router.delete('/delete-product/:productId',
-    // validation(Val.deletefavouriteVal),
-    asyncErrorHandler(auth([roles.user])),
-    asyncErrorHandler(favourite.deleteProduct)
-)
-
-
 router.get('/get-user-wishlist',
     validation(Val.noDateSchema),
     asyncErrorHandler(auth([roles.user])),
     asyncErrorHandler(favourite.getUserWishList)
-)
-router.get('/get-user-favourite',
-    validation(Val.noDateSchema),
-    asyncErrorHandler(auth([roles.user])),
-    asyncErrorHandler(favourite.getUserfavourite)
 )
 
 export default router

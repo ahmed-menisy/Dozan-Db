@@ -21,7 +21,13 @@ export const signIn = {
 }
 
 
-
+export const checkToken = {
+    body: joi.object().required().keys({
+        token:joi.string().required()
+    }),
+    params: joi.object().required().keys({}),
+    query: joi.object().required().keys({}),
+}
 export const NoDataSchema = {
     body: joi.object().required().keys({}),
     params: joi.object().required().keys({}),

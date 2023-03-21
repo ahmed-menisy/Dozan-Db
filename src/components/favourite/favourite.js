@@ -2,7 +2,6 @@ import ErrorClass from "../../utils/ErrorClass.js";
 import {
     StatusCodes
 } from 'http-status-codes';
-import cartModel from "../../../DB/models/cartModel.js";
 import productModel from "../../../DB/models/productModel.js";
 import userModel from "../../../DB/models/userModel.js";
 
@@ -40,14 +39,3 @@ export const getUserWishList = async (req, res, next) => {
 
     res.status(StatusCodes.ACCEPTED).json({ result: wishList.wishList })
 }
-
-
-export const getWishlist = async (req, res, next) => {
-    const wishList = await orderModel.find().populate([{
-        path: 'wishList',
-        select: 'title price mainImage rate'
-    }])
-
-    res.status(StatusCodes.ACCEPTED).json({ result: wishList })
-}
-

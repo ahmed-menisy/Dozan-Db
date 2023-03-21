@@ -85,26 +85,3 @@ export const deleteProduct = async (req, res, next) => {
     await cart.save();
     res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: cart })
 }
-
-export const getOrders = async (req, res, next) => {
-    const { status } = req.query
-    const delivered = {
-        all: {
-            $or: [
-                { delivered: true }, { delivered: false }
-            ]
-        },
-        delivered: { delivered: true },
-        not_delivered: { delivered: false }
-    }
-    const orders = await orderModel.find(delivered[status]).populate([{
-        path: 'user',
-        select: 'email '
-    }, {
-        path: 'products',
-        select: 'title price description video images mainImage rate reviewNo'
-    }])
-
-    res.status(StatusCodes.ACCEPTED).json({ result: orders })
-}
-

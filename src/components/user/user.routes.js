@@ -8,6 +8,6 @@ const router = Router();
 
 router.post('/signup',validation(Val.signUp),asyncErrorHandler(users.signUp))
 router.post('/signin',validation(Val.signIn),asyncErrorHandler(users.signIn))
-
+router.post('/check-token',validation(Val.checkToken),asyncErrorHandler(users.checkToken))
 
 export default router

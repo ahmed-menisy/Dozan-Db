@@ -16,6 +16,11 @@ import cors from "cors"
 config()
 connection()
 app.use(cors())
+
+
+
+
+
 app.use('/api/v1/users',userRouter)
 app.use('/api/v1/admin',adminRouter)
 app.use('/api/v1/product',productRouter)
@@ -24,9 +29,6 @@ app.use('/api/v1/review',reviewRouter)
 app.use('/api/v1/category',categoryRouter)
 app.use('/api/v1/cart',cartRouter)
 app.use('/api/v1/favourite',favouriteRouter)
-
-
-
 
 
 
