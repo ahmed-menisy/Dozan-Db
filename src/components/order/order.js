@@ -118,8 +118,8 @@ export const getOrders = async (req, res, next) => {
         path: 'user',
         select: 'email '
     }, {
-        path: 'products',
-        select: 'title price description video images mainImage rate reviewNo'
+        path: 'products.product',
+        select: 'title price description mainImage'
     }])
 
     res.status(StatusCodes.ACCEPTED).json({ result: orders })

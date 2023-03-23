@@ -1,5 +1,6 @@
 import bcryptjs from 'bcryptjs';
 import adminModel from '../../../DB/models/admin.js';
+import orderModel from '../../../DB/models/orderModel.js';
 import {
     StatusCodes
 } from 'http-status-codes';
@@ -70,3 +71,39 @@ export const deleteAdmin = async (req, res, next) => {
     await adminModel.deleteOne({ _id: id })
     res.status(StatusCodes.ACCEPTED).json({ message: "Deleted" })
 }
+
+
+// export const charts = async (req, res, next) => {
+//     const twelveMonthsAgo = new Date();
+//     twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+    
+    
+//     const result = await orderModel.find({
+//         createdAt: { $gte: twelveMonthsAgo }
+//       })
+//       .populate({
+//         path: "products.product",
+//         select: "category"
+//       })
+//       .then(function(orders) {
+//         const categoryCounts = {};
+//         orders.forEach(function(order) {
+//           order.products.forEach(function(product) {
+//             const categoryId = product.product.category.toString();
+//             if (!categoryCounts[categoryId]) {
+//               categoryCounts[categoryId] = {
+//                 name: product.product.category.name,
+//                 count: 1
+//               };
+//             } else {
+//               categoryCounts[categoryId].count++;
+//             }
+//           });
+//         });
+//         console.log(categoryCounts);
+//       })
+//       .catch(function(err) {
+//         console.log(err);
+//       });
+//     res.json({ result })
+// }

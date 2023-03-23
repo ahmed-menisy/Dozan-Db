@@ -85,9 +85,6 @@ export const getAllReviews = async (req, res, next) => {
             path: "product"
         }
     ]);
-    if (!reviews.length) {
-        return next(new ErrorClass("No reviews founded", 404))
-    }
     res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: reviews })
 }
 

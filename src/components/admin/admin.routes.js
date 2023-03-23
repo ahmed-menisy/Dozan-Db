@@ -30,4 +30,8 @@ router.delete('/delete/:id',
     asyncErrorHandler(auth([roles.superAdmin])),
     asyncErrorHandler(admin.deleteAdmin)
 )
+
+// router.get('/data', admin.charts)
+
+
 export default router
