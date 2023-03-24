@@ -35,7 +35,6 @@ export const signIn = async (req, res, next) => {
                 id: user._id
             }
             const token = jwt.sign(userData,process.env.tokenSecret)
-            await userModel.findByIdAndUpdate(user._id, { isLoggedIn: true })
             res.json({ message: "Done", token })
         } else {
             return res.json({ message: "in-valid user information" });

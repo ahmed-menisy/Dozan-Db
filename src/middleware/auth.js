@@ -33,7 +33,7 @@ export const auth = (roles) => {
                         req.user = user
                         next()
                     } else {
-                        return next(new ErrorClass('YOU ARE NOT AUTHORIZED TO USE THIS END POINT', StatusCodes.FORBIDDEN))
+                        return next(new ErrorClass('YOU ARE NOT AUTHORIZED TO USE THIS END POINT', StatusCodes.UNAUTHORIZED))
                     }
                 } else {
                     return next(new ErrorClass('In-valid user', StatusCodes.NOT_FOUND))

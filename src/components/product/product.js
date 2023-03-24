@@ -31,7 +31,8 @@ export const addProduct = async (req, res, next) => {
                 folder: `MainImages/${req.files.mainImage[0].originalname + nanoid()}`,
                 public_id: req.files.mainImage[0].originalname + nanoid(),
                 use_filename: true,
-                unique_filename: false
+                unique_filename: false,
+                resource_type: "auto"
             })
         }
         if (images) {
@@ -41,6 +42,8 @@ export const addProduct = async (req, res, next) => {
                     public_id: image.originalname + nanoid(),
                     use_filename: true,
                     unique_filename: false,
+                    resource_type: "auto",
+
                 })
                 imagesDB.push(img.secure_url)
             }
@@ -55,19 +58,25 @@ export const addProduct = async (req, res, next) => {
             })
         }
 
-        added = await productModel.insertMany({ title, price, description, mainImage: image?.secure_url, video: video?.secure_url, images: imagesDB })
+        added = await productModel.insertMany({
+            title,
+            price,
+            description,
+            mainImage: image?.secure_url,
+            video: video?.secure_url,
+            images: imagesDB,
+            category: catg.name
+        })
 
     } else {
-        added = await productModel.insertMany({ title, price, description })
+        added = await productModel.insertMany({ title, price, description, category: catg.name })
     }
     let cat = await categoryModel.updateOne({ _id: categoryId }, {
         $push: {
             products: added[0]._id
         }
     })
-    console.log({cat});
     res.status(StatusCodes.CREATED).json({ message: "Done", result: added })
-
 }
 
 export const updateProduct = async (req, res, next) => {
