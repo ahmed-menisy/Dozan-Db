@@ -14,12 +14,6 @@ const stripe = new Stripe(process.env.stripe_secret)
  * Get user Order
 */
 
-export const createOrder = async (data) => {
-    const { phone, address, products, comment } = data
-    console.log(data);
-    // let order = new orderModel({ totalCost, user, phone, address, products: founded, comment })
-    res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: order })
-}
 
 export const updateProduct = async (req, res, next) => {
     const orderID = req.params._id
@@ -200,4 +194,11 @@ export const webhookCheckout = (req, res, next) => {
         console.log('create order');
     }
     createOrder(event.data.object.metadata)
+}
+
+const createOrder = async (data) => {
+    const { phone, address, products, comment } = data
+    console.log(data);
+    let order = new orderModel({ totalCost, user, phone, address, products: founded, comment })
+    return order
 }
