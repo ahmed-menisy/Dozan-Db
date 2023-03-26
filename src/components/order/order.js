@@ -196,6 +196,7 @@ export const webhookCheckout = async (req, res, next) => {
     }
     let { phone, address, products, comment, totalCost, user } = event.data.object.metadata
     products = JSON.parse(products)
+    user = JSON.parse(user)
     console.log({ message: "Done", phone, address, products, comment, totalCost, user });
     let order = await orderModel.insertMany({ phone, address, products, comment, totalCost, user })
     res.json({ message: "Done", order });
