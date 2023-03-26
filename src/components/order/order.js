@@ -193,7 +193,7 @@ export const webhookCheckout = (req, res, next) => {
     if (event.type == 'checkout.session.completed') {
         console.log('create order');
     }
-    createOrder(event.data.object.metadata)
+    console.log(createOrder(event.data.object.metadata));
 }
 
 const createOrder = async (data) => {
