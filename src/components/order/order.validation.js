@@ -8,12 +8,12 @@ export const createOrderVal = {
         address: joi.string().required(),
         products: joi.array()
             .items({
-                product:joi.string().max(24).min(24).required(),
-                quantity:joi.number().min(1).required()
+                product: joi.string().max(24).min(24).required(),
+                quantity: joi.number().min(1).required()
             })
             .required(),
         comment: joi.string().max(2000),
-        payMethod:joi.string().valid('Visa','Paypal',"Cash")
+        payMethod: joi.string().valid('Visa', 'Paypal', "Cash")
     }),
     params: joi.object().required().keys({}),
     query: joi.object().required().keys({}),
@@ -25,8 +25,8 @@ export const updateOrderVal = {
         address: joi.string(),
         products: joi.array()
             .items({
-                product:joi.string().max(24).min(24).required(),
-                quantity:joi.number().min(1).required()
+                product: joi.string().max(24).min(24).required(),
+                quantity: joi.number().min(1).required()
             })
             .required(),
         comment: joi.string().max(2000)
@@ -50,18 +50,25 @@ export const getOrderSchema = {
     body: joi.object().required().keys({}),
     params: joi.object().required().keys({}),
     query: joi.object().required().keys({
-        status: joi.string().valid('all','delivered','not_delivered').required()
+        status: joi.string().valid('all', 'delivered', 'not_delivered').required()
     }),
 }
 
 export const getUserOrderSchema = {
     body: joi.object().required().keys({}),
     params: joi.object().required().keys({
-        userId:joi.string().max(24).min(24).required()
+        userId: joi.string().max(24).min(24).required()
     }),
     query: joi.object().required().keys({
-        status: joi.string().valid('all','delivered','not_delivered').required()
+        status: joi.string().valid('all', 'delivered', 'not_delivered').required()
     }),
 }
 
 
+export const checkOut = {
+    body: joi.object().required().keys({
+        shippingMount: joi.number().min(0).required()
+    }),
+    params: joi.object().required().keys({}),
+    query: joi.object().required().keys({}),
+}

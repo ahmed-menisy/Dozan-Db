@@ -1,4 +1,5 @@
 import Router from 'express';
+import express from "express";
 import { auth, roles } from '../../middleware/auth.js';
 import validation from '../../middleware/validation.js';
 import { asyncErrorHandler } from '../../utils/errorHandeling.js';
@@ -40,6 +41,18 @@ router.get('/get-user-orders/:userId',
     validation(Val.getUserOrderSchema),
     asyncErrorHandler(auth([roles.admin, roles.superAdmin, roles.user])),
     asyncErrorHandler(order.getUserOrders)
+)
+
+
+router.post('/checkout',
+    validation(Val.checkOut),
+    asyncErrorHandler(auth([roles.user])),
+    asyncErrorHandler(order.checkout)
+)
+
+router.post('/webhook',
+    express.raw({ type: 'application/json' }),
+    asyncErrorHandler(order.webhookCheckout)
 )
 
 export default router

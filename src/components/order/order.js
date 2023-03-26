@@ -1,12 +1,15 @@
+import { config } from "dotenv";
+config()
 import ErrorClass from "../../utils/ErrorClass.js";
 import {
     StatusCodes
 } from 'http-status-codes';
 import orderModel from "../../../DB/models/orderModel.js";
 import productModel from "../../../DB/models/productModel.js";
+import cartModel from "../../../DB/models/cartModel.js";
 import userModel from "../../../DB/models/userModel.js";
-
-
+import Stripe from "stripe";
+const stripe = new Stripe(process.env.stripe_secret)
 /**
  * Get user Order
 */
@@ -145,7 +148,110 @@ export const getUserOrders = async (req, res, next) => {
     delivered.user = userId
     const orders = await orderModel.find(delivered[status]).populate([{
         path: 'products.product',
-        select: 'title price description video images mainImage'
+        select: 'title price description mainImage'
     }])
     res.status(StatusCodes.ACCEPTED).json({ result: orders })
+}
+
+export const checkout = async (req, res, next) => {
+    const user = req.user._id
+    const { shippingMount } = req.body
+    const cart = await cartModel.findOne({ user })
+
+    //* calculate the total price and find removed products
+
+    let totalCost = 0
+    let notFound = [], founded = [];
+    const productsFounded = await productModel.find({
+        _id
+            : {
+            $in: cart.products.map(product => {
+                return product.product
+            })
+        }
+    }).select('price');
+    // Validate that all the product IDs were found
+    if (productsFounded.length !== cart.products.length) {
+        notFound = cart.products.filter(product => !productsFounded.find(p => p._id.toString() === product.product));
+    }
+    // Calculate the total cost of the order
+    for (const product of productsFounded) {
+        const orderProduct = cart.products.find(p => p.product.toString() === product._id.toString());
+
+        totalCost += Number(product.price) * Number(orderProduct.quantity);
+        founded.push({ product: orderProduct.product, quantity: orderProduct.quantity });
+    }
+    totalCost += shippingMount
+
+
+
+    //* create stripe session
+
+    const session = await stripe.checkout.sessions.create({
+        // line_items: [
+        //     {
+        //         price_data:{
+        //             currency:'usd',
+        //             unit_amount: totalCost * 100,
+
+        //         },
+        //         name: req.user.name,
+        //         quantity: 1,
+        //     },
+        // ],
+        line_items: [{
+
+            price_data: {
+                currency: 'usd',
+                unit_amount: totalCost * 100,
+                product_data: {
+                    name: "ama"
+                },
+            },
+            quantity: 1,
+        }],
+        mode: 'payment',
+        success_url: `${req.protocol}://${req.headers.host}/api/v1/admin/data`,
+        cancel_url: `${req.protocol}://${req.headers.host}/api/v1/category/get-all-categories?sort=sorted`,
+        customer_email: req.user.email,
+        client_reference_id: cart._id,
+        // metadata: "Anas"
+    })
+
+
+
+
+
+
+    notFound.length ? res.status(StatusCodes.ACCEPTED).json({
+
+        removedProduct: `Products with IDs [ ${notFound.map(product => product.product).join(', ')} ] not found`, result: totalCost, session
+    }) :
+        res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: totalCost, session })
+
+
+
+
+
+
+
+
+
+
+}
+
+export const webhookCheckout = (req, res, next) => {
+    try {
+        const sig = req.headers['stripe-signature'];
+        let event;
+        event = stripe.webhooks.constructEvent(req.body, sig, process.env.webhook_secret);
+        if (event.type == 'checkout.session.completed') {
+            console.log(event.data);
+            console.log('create order');
+        }
+        // res.json({ message: "Done" })
+    } catch (error) {
+        console.log({error});
+        res.json({ error });
+    }
 }
