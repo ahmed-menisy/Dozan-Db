@@ -193,12 +193,15 @@ export const webhookCheckout = (req, res, next) => {
     if (event.type == 'checkout.session.completed') {
         console.log('create order');
     }
-    console.log(createOrder(event.data.object.metadata));
+    let order = createOrder(event.data.object.metadata)
+    console.log({ order });
+    res.json({ order });
 }
 
 const createOrder = async (data) => {
-    const { phone, address, products, comment } = data
-    console.log(data);
-    let order = new orderModel({ totalCost, user, phone, address, products: founded, comment })
+    let { phone, address, products, comment, totalCost } = data
+    products = JSON.parse(products)
+    // console.log(data);
+    let order = new orderModel({ totalCost, user, phone, address, products, comment })
     return order
 }
