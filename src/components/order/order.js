@@ -182,9 +182,9 @@ export const checkout = async (req, res, next) => {
     })
 
     notFound.length ? res.status(StatusCodes.ACCEPTED).json({
-        removedProduct: `Products with IDs [ ${notFound.map(product => product.product).join(', ')} ] not found`, result: totalCost, session: session.url
+        removedProduct: `Products with IDs [ ${notFound.map(product => product.product).join(', ')} ] has been removed`, payment_url: session.url
     }) :
-        res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: totalCost, session: session.url })
+        res.status(StatusCodes.ACCEPTED).json({ message: "Done", payment_url: session.url })
 }
 
 export const webhookCheckout = async (req, res, next) => {
@@ -198,6 +198,7 @@ export const webhookCheckout = async (req, res, next) => {
     products = JSON.parse(products)
     user = JSON.parse(user)
     console.log({ message: "Done", phone, address, products, comment, totalCost, user });
-    let order = await orderModel.insertMany({ phone, address, products, comment, totalCost, user })
+    let order = new orderModel({ phone, address, products, comment, totalCost, user })
+    order = await order.save();
     res.json({ message: "Done", order });
 }
