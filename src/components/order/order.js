@@ -199,7 +199,7 @@ export const webhookCheckout = (req, res, next) => {
 }
 
 const createOrder = async (data) => {
-    let { phone, address, products, comment, totalCost } = data
+    let { phone, address, products, comment, totalCost, user } = data
     products = JSON.parse(products)
     // console.log(data);
     let order = new orderModel({ totalCost, user, phone, address, products, comment })
