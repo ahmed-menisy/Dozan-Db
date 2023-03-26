@@ -224,7 +224,6 @@ export const checkout = async (req, res, next) => {
 }
 
 export const webhookCheckout = (req, res, next) => {
-    try {
         const sig = req.headers['stripe-signature'];
         let event;
         event = stripe.webhooks.constructEvent(req.body, sig, process.env.webhook_secret);
@@ -233,8 +232,5 @@ export const webhookCheckout = (req, res, next) => {
             console.log('create order');
         }
         res.json({ message: "Done" })
-    } catch (error) {
-        console.log({ error });
-        res.json({ error });
-    }
+
 }
