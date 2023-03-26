@@ -7,11 +7,7 @@ import * as order from './order.js';
 import * as Val from './order.validation.js';
 const router = Router();
 
-router.post('/create-order',
-    validation(Val.createOrderVal),
-    asyncErrorHandler(auth([roles.user])),
-    asyncErrorHandler(order.createOrder)
-)
+
 
 router.patch('/update-order/:_id',
     validation(Val.updateOrderVal),
