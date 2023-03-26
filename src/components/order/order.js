@@ -157,7 +157,7 @@ export const checkout = async (req, res, next) => {
     const user = req.user._id
     const { shippingMount } = req.body
     const cart = await cartModel.findOne({ user })
-
+    console.log(123);
     //* calculate the total price and find removed products
 
     let totalCost = 0
@@ -217,27 +217,10 @@ export const checkout = async (req, res, next) => {
         client_reference_id: cart._id,
         // metadata: "Anas"
     })
-
-
-
-
-
-
     notFound.length ? res.status(StatusCodes.ACCEPTED).json({
-
-        removedProduct: `Products with IDs [ ${notFound.map(product => product.product).join(', ')} ] not found`, result: totalCost, session
+        removedProduct: `Products with IDs [ ${notFound.map(product => product.product).join(', ')} ] not found`, result: totalCost, session: session.url
     }) :
-        res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: totalCost, session })
-
-
-
-
-
-
-
-
-
-
+        res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: totalCost, session: session.url })
 }
 
 export const webhookCheckout = (req, res, next) => {
@@ -251,7 +234,7 @@ export const webhookCheckout = (req, res, next) => {
         }
         // res.json({ message: "Done" })
     } catch (error) {
-        console.log({error});
+        console.log({ error });
         res.json({ error });
     }
 }

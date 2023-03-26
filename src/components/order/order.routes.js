@@ -52,7 +52,7 @@ router.post('/checkout',
 
 router.post('/webhook',
     express.raw({ type: 'application/json' }),
-    asyncErrorHandler(order.webhookCheckout)
+    order.webhookCheckout
 )
 
 export default router
