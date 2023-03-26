@@ -93,8 +93,7 @@ export const getOrders = async (req, res, next) => {
     }, {
         path: 'products.product',
         select: 'title price description mainImage'
-    }])
-
+    }]).skip(skip).limit(limit)
     res.status(StatusCodes.ACCEPTED).json({ result: orders })
 }
 
@@ -197,7 +196,8 @@ export const webhookCheckout = async (req, res, next) => {
     }
     let { phone, address, products, comment, totalCost, user } = event.data.object.metadata
     products = JSON.parse(products)
+    console.log({ phone, address, products, comment, totalCost, user });
     let order = await orderModel.insertMany({ phone, address, products, comment, totalCost, user })
 
-    res.json({ order });
+    res.json({ message: "Done", order });
 }
