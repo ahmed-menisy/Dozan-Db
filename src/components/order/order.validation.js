@@ -44,7 +44,9 @@ export const getOrderSchema = {
     body: joi.object().required().keys({}),
     params: joi.object().required().keys({}),
     query: joi.object().required().keys({
-        status: joi.string().valid('all', 'delivered', 'not_delivered').required()
+        status: joi.string().valid('all', 'delivered', 'not_delivered').required(),
+        page: joi.number().min(1),
+        size: joi.number().min(1).max(20).message('size must be a number between 1 and 20'),
     }),
 }
 

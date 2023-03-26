@@ -9,6 +9,7 @@ import productModel from "../../../DB/models/productModel.js";
 import cartModel from "../../../DB/models/cartModel.js";
 import userModel from "../../../DB/models/userModel.js";
 import Stripe from "stripe";
+import { paginate } from "../../utils/pagination.js";
 const stripe = new Stripe(process.env.stripe_secret)
 /**
  * Get user Order
@@ -75,7 +76,7 @@ export const markAsDelivered = async (req, res, next) => {
 }
 
 export const getOrders = async (req, res, next) => {
-    const { status } = req.query
+    const { status, page, size } = req.query
     const delivered = {
         all: {
             $or: [
@@ -85,6 +86,7 @@ export const getOrders = async (req, res, next) => {
         delivered: { delivered: true },
         not_delivered: { delivered: false }
     }
+    const { skip, limit } = paginate(page, size)
     const orders = await orderModel.find(delivered[status]).populate([{
         path: 'user',
         select: 'email '
@@ -193,14 +195,9 @@ export const webhookCheckout = async (req, res, next) => {
     if (event.type == 'checkout.session.completed') {
         console.log('create order');
     }
-    let order = await createOrder(event.data.object.metadata)
-    console.log({ order });
-    res.json({ order });
-}
-
-const createOrder = async (data) => {
-    let { phone, address, products, comment, totalCost, user } = data
+    let { phone, address, products, comment, totalCost, user } = event.data.object.metadata
     products = JSON.parse(products)
     let order = await orderModel.insertMany({ phone, address, products, comment, totalCost, user })
-    return order
+
+    res.json({ order });
 }
