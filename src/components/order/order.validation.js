@@ -23,12 +23,6 @@ export const updateOrderVal = {
     body: joi.object().required().keys({
         phone: joi.string(),
         address: joi.string(),
-        products: joi.array()
-            .items({
-                product: joi.string().max(24).min(24).required(),
-                quantity: joi.number().min(1).required()
-            })
-            .required(),
         comment: joi.string().max(2000)
     }),
     params: joi.object().required().keys({
@@ -67,7 +61,10 @@ export const getUserOrderSchema = {
 
 export const checkOut = {
     body: joi.object().required().keys({
-        shippingMount: joi.number().min(0).required()
+        shippingMount: joi.number().min(0).required(),
+        phone: joi.string().required(),
+        address: joi.string().required(),
+        comment: joi.string()
     }),
     params: joi.object().required().keys({}),
     query: joi.object().required().keys({}),

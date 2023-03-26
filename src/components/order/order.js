@@ -14,37 +14,11 @@ const stripe = new Stripe(process.env.stripe_secret)
  * Get user Order
 */
 
-export const createOrder = async (req, res, next) => {
-    const { phone, address, products, comment, payMethod } = req.body
-    const user = req.user._id
-    let totalCost = 0
-    let notFound = [], founded = [];
-    const productsFounded = await productModel.find({
-        _id
-            : { $in: products.map(product => product.product) }
-    });
-    // Validate that all the product IDs were found
-    if (productsFounded.length !== products.length) {
-        notFound = products.filter(product => !productsFounded.find(p => p._id.toString() === product.product));
-    }
-    // Calculate the total cost of the order
-    for (const product of productsFounded) {
-        const orderProduct = products.find(p => p.product === product._id.toString());
-        totalCost += Number(product.price) * Number(orderProduct.quantity);
-        founded.push({ product: orderProduct.product, quantity: orderProduct.quantity });
-    }
-    if (notFound.length == products.length) {
-        return next(new ErrorClass("All products not found", 404))
-    }
-    let order
-    if (!payMethod) {
-        order = new orderModel({ totalCost, user, phone, address, products: founded, comment, payMethod })
-    } else {
-        order = new orderModel({ totalCost, user, phone, address, products: founded, comment })
-    }
-    const Order = await order.save()
-    notFound.length ? res.status(StatusCodes.ACCEPTED).json({ message: "Done", InValidProductId: `Products with IDs [ ${notFound.map(product => product.product).join(', ')} ] not found`, result: Order }) :
-        res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: Order })
+export const createOrder = async (data) => {
+    const { phone, address, products, comment } = data
+    console.log(data);
+    // let order = new orderModel({ totalCost, user, phone, address, products: founded, comment })
+    res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: order })
 }
 
 export const updateProduct = async (req, res, next) => {
@@ -155,9 +129,8 @@ export const getUserOrders = async (req, res, next) => {
 
 export const checkout = async (req, res, next) => {
     const user = req.user._id
-    const { shippingMount } = req.body
+    const { shippingMount, address, phone, comment } = req.body
     const cart = await cartModel.findOne({ user })
-    console.log(123);
     //* calculate the total price and find removed products
 
     let totalCost = 0
@@ -184,28 +157,16 @@ export const checkout = async (req, res, next) => {
     totalCost += shippingMount
 
 
-
     //* create stripe session
 
     const session = await stripe.checkout.sessions.create({
-        // line_items: [
-        //     {
-        //         price_data:{
-        //             currency:'usd',
-        //             unit_amount: totalCost * 100,
-
-        //         },
-        //         name: req.user.name,
-        //         quantity: 1,
-        //     },
-        // ],
         line_items: [{
 
             price_data: {
                 currency: 'usd',
                 unit_amount: totalCost * 100,
                 product_data: {
-                    name: "ama"
+                    name: req.user.name
                 },
             },
             quantity: 1,
@@ -215,8 +176,16 @@ export const checkout = async (req, res, next) => {
         cancel_url: `${req.protocol}://${req.headers.host}/api/v1/category/get-all-categories?sort=sorted`,
         customer_email: req.user.email,
         client_reference_id: cart._id,
-        // metadata: "Anas"
+        metadata: {
+            address,
+            phone,
+            comment,
+            totalCost,
+            products: JSON.stringify(founded),
+            user: JSON.stringify(req.user._id)
+        }
     })
+
     notFound.length ? res.status(StatusCodes.ACCEPTED).json({
         removedProduct: `Products with IDs [ ${notFound.map(product => product.product).join(', ')} ] not found`, result: totalCost, session: session.url
     }) :
@@ -224,13 +193,11 @@ export const checkout = async (req, res, next) => {
 }
 
 export const webhookCheckout = (req, res, next) => {
-        const sig = req.headers['stripe-signature'];
-        let event;
-        event = stripe.webhooks.constructEvent(req.body, sig, process.env.webhook_secret);
-        if (event.type == 'checkout.session.completed') {
-            console.log(event.data);
-            console.log('create order');
-        }
-        res.json({ message: "Done" })
-
+    const sig = req.headers['stripe-signature'];
+    let event;
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.webhook_secret);
+    if (event.type == 'checkout.session.completed') {
+        console.log('create order');
+    }
+    createOrder(event.data.object.metadata)
 }
