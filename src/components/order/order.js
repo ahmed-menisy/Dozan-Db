@@ -232,7 +232,7 @@ export const webhookCheckout = (req, res, next) => {
             console.log(event.data);
             console.log('create order');
         }
-        // res.json({ message: "Done" })
+        res.json({ message: "Done" })
     } catch (error) {
         console.log({ error });
         res.json({ error });
