@@ -1,12 +1,6 @@
 import express from 'express';
 const app = express();
-app.use((req, res, next) => {
-    if (req.originalUrl === '/api/v1/order/webhook') {
-        next(); // Do nothing with the body because I need it in a raw state.
-    } else {
-        express.json()(req,res,next) // ONLY do express.json() if the received request is NOT a WebHook from Stripe.
-    }
-});
+app.use(express.json());
 import { config } from 'dotenv';
 import connection from './DB/connection.js';
 import { errorHandel } from './src/utils/errorHandeling.js';
