@@ -40,10 +40,6 @@ const orderSchema = new mongoose.Schema({
     delivered: {
         type: Boolean,
         default: false
-    },
-    payMethod: {
-        type: String,
-        default: "Visa"
     }
 }, {
     timestamps: true

@@ -173,8 +173,4 @@ export const sort = async (req, res, next) => {
         return next(new ErrorClass('No products available', StatusCodes.NOT_FOUND));
     }
     return res.status(StatusCodes.ACCEPTED).json({ result: products })
-
 }
-
-
-

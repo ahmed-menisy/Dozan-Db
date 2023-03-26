@@ -186,14 +186,14 @@ export const checkout = async (req, res, next) => {
         res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: totalCost, session: session.url })
 }
 
-export const webhookCheckout = (req, res, next) => {
+export const webhookCheckout = async (req, res, next) => {
     const sig = req.headers['stripe-signature'];
     let event;
     event = stripe.webhooks.constructEvent(req.body, sig, process.env.webhook_secret);
     if (event.type == 'checkout.session.completed') {
         console.log('create order');
     }
-    let order = createOrder(event.data.object.metadata)
+    let order = await createOrder(event.data.object.metadata)
     console.log({ order });
     res.json({ order });
 }
@@ -201,7 +201,6 @@ export const webhookCheckout = (req, res, next) => {
 const createOrder = async (data) => {
     let { phone, address, products, comment, totalCost, user } = data
     products = JSON.parse(products)
-    // console.log(data);
-    let order = new orderModel({ totalCost, user, phone, address, products, comment })
+    let order = await orderModel.insertMany({ phone, address, products, comment, totalCost, user })
     return order
 }
