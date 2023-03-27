@@ -21,6 +21,17 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         default: "user",
+    },
+    confirmed:{
+        type:Boolean,
+        default:false,
+    },
+    code:{
+        type:Number,
+    },
+    isLoggedIn:{
+        type:Boolean,
+        default:false,
     }
 }, {
     timestamps: true

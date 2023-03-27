@@ -8,12 +8,23 @@ import {
 import ErrorClass from '../../utils/ErrorClass.js';
 import jwt from 'jsonwebtoken';
 import { roles } from '../../middleware/auth.js';
+import { createHtml, sendEmail } from '../../utils/sendEmail.js';
 
 
 export const addAdmin = async (req, res, next) => {
   const { name, email, password } = req.body;
   const hashedPassword = bcryptjs.hashSync(password, +process.env.salt)
   const AdminAdded = await adminModel.insertMany({ name, email, password: hashedPassword })
+  const payload = {
+    id: AdminAdded[0]._id,
+    email: email,
+    role: AdminAdded[0].role
+  }
+  const token = jwt.sign(payload, process.env.TokenStart)
+
+  const link = `${req.protocol}://${req.headers.host}/api/v1/admin/confirm/${token}`
+  let html = createHtml(link)
+  await sendEmail(email, "Dozan email confirmation", html)
   return res.status(StatusCodes.CREATED).json({ message: "Done", result: AdminAdded });
 }
 
@@ -35,6 +46,17 @@ export const signIn = async (req, res, next) => {
   }
   const token = jwt.sign(payload, process.env.TokenStart)
   res.status(StatusCodes.ACCEPTED).json({ message: "Done", token })
+}
+
+
+export const confirmEmail = async (req, res) => {
+  const token = req.params.token;
+  const tokenDetails = jwt.verify(token, process.env.TokenStart)
+  const user = await adminModel.findByIdAndUpdate(tokenDetails._id, { confirm: true }, { new: true })
+  if (!user) {
+    return res.status(404).json({ message: "user not found" });
+  }
+  res.redirect('https://google.com');
 }
 
 export const changePassword = async (req, res, next) => {
@@ -72,42 +94,6 @@ export const deleteAdmin = async (req, res, next) => {
   await adminModel.deleteOne({ _id: id })
   res.status(StatusCodes.ACCEPTED).json({ message: "Deleted" })
 }
-
-
-// export const charts = async (req, res, next) => {
-//     const twelveMonthsAgo = new Date();
-//     twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
-
-
-//     const result = await orderModel.find({
-//         createdAt: { $gte: twelveMonthsAgo }
-//       })
-//       .populate({
-//         path: "products.product",
-//         select: "category"
-//       })
-//       .then(function(orders) {
-//         const categoryCounts = {};
-//         orders.forEach(function(order) {
-//           order.products.forEach(function(product) {
-//             const categoryId = product.product.category.toString();
-//             if (!categoryCounts[categoryId]) {
-//               categoryCounts[categoryId] = {
-//                 name: product.product.category.name,
-//                 count: 1
-//               };
-//             } else {
-//               categoryCounts[categoryId].count++;
-//             }
-//           });
-//         });
-//         console.log(categoryCounts);
-//       })
-//       .catch(function(err) {
-//         console.log(err);
-//       });
-//     res.json({ result })
-// }
 
 export const charts = async (req, res, next) => {
 

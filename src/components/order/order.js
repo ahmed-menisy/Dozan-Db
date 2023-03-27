@@ -89,7 +89,7 @@ export const getOrders = async (req, res, next) => {
     const { skip, limit } = paginate(page, size)
     let orders = await orderModel.find(delivered[status]).populate([{
         path: 'user',
-        select: 'email '
+        select: 'email name'
     }, {
         path: 'products.product',
         select: 'title price description mainImage'
@@ -124,6 +124,9 @@ export const getUserOrders = async (req, res, next) => {
     }
     delivered.user = userId
     const orders = await orderModel.find(delivered[status]).populate([{
+        path: 'user',
+        select: 'email name'
+    },{
         path: 'products.product',
         select: 'title price description mainImage'
     }])
@@ -175,7 +178,6 @@ export const checkout = async (req, res, next) => {
             quantity: 1,
         }],
         mode: 'payment',
-        payment_method_types:"",
         success_url: `${req.protocol}://${req.headers.host}/api/v1/admin/data`,
         cancel_url: `${req.protocol}://${req.headers.host}/api/v1/category/get-all-categories?sort=sorted`,
         customer_email: req.user.email,

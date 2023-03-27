@@ -31,6 +31,8 @@ router.delete('/delete/:id',
     asyncErrorHandler(admin.deleteAdmin)
 )
 
+
+// router.get('/confirm', asyncErrorHandler(admin.confirmEmail))
 router.get('/data', asyncErrorHandler(admin.charts))
 
 
