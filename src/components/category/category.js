@@ -74,7 +74,6 @@ export const getAllCategories = async (req, res, next) => {
             returnedProducts: products.length,
             page: checkPage(page, totalPages)
         })
-
     }
 
     res.json({

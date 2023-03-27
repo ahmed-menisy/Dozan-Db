@@ -144,12 +144,17 @@ export const deleteProduct = async (req, res, next) => {
 export const getAllProducts = async (req, res, next) => {
     const { size, page } = req.query
     const { skip, limit } = paginate(page, size)
-    const products = await productModel.find().skip(skip).limit(limit)
-
-    if (!products.length) {
-        return next(new ErrorClass('No products available', StatusCodes.NOT_FOUND));
-    }
-    return res.status(StatusCodes.ACCEPTED).json({ result: products })
+    let products = []
+    products = await productModel.find()
+    const productsCount = products.length;
+    products = products.splice(skip, limit)
+    const totalPages = Math.ceil(productsCount / size)
+    return res.status(StatusCodes.ACCEPTED).json({
+        result: products,
+        productsCount,
+        totalPages,
+        page
+    })
 }
 
 export const getProductById = async (req, res, next) => {

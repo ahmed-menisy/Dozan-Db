@@ -87,14 +87,22 @@ export const getOrders = async (req, res, next) => {
         not_delivered: { delivered: false }
     }
     const { skip, limit } = paginate(page, size)
-    const orders = await orderModel.find(delivered[status]).populate([{
+    let orders = await orderModel.find(delivered[status]).populate([{
         path: 'user',
         select: 'email '
     }, {
         path: 'products.product',
         select: 'title price description mainImage'
-    }]).skip(skip).limit(limit)
-    res.status(StatusCodes.ACCEPTED).json({ result: orders })
+    }])
+    const ordersCount = orders.length;
+    orders = orders.splice(skip, limit)
+    const totalPages = Math.ceil(ordersCount / size)
+    return res.status(StatusCodes.ACCEPTED).json({
+        result: orders,
+        ordersCount,
+        totalPages,
+        page
+    })
 }
 
 export const getUserOrders = async (req, res, next) => {
@@ -167,6 +175,7 @@ export const checkout = async (req, res, next) => {
             quantity: 1,
         }],
         mode: 'payment',
+        payment_method_types:"",
         success_url: `${req.protocol}://${req.headers.host}/api/v1/admin/data`,
         cancel_url: `${req.protocol}://${req.headers.host}/api/v1/category/get-all-categories?sort=sorted`,
         customer_email: req.user.email,
