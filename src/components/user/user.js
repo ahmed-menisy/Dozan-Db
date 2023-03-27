@@ -34,7 +34,7 @@ export const signIn = async (req, res, next) => {
                 email: user.email,
                 id: user._id
             }
-            const token = jwt.sign(userData,process.env.tokenSecret)
+            const token = jwt.sign(userData, process.env.tokenSecret)
             res.json({ message: "Done", token })
         } else {
             return res.json({ message: "in-valid user information" });
@@ -50,7 +50,7 @@ export const checkToken = async (req, res, next) => {
     token = jwt.verify(token, process.env.tokenSecret)
     const user = await userModel.findById(token.id).select('email name')
     if (!user) {
-        return next(new ErrorClass(false, 404))
+        res.json({ message: false })
     }
     res.json({ message: true, user })
 }
