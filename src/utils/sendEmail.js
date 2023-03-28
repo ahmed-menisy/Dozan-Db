@@ -1,4 +1,4 @@
-export const createHtml = (link) => {
+export const createHtml = (object) => {
     return `<!DOCTYPE html>
     <html>
     
@@ -150,10 +150,7 @@ export const createHtml = (link) => {
                                         <td bgcolor="#ffffff" align="center" style="padding: 20px 30px 60px 30px;">
                                             <table border="0" cellspacing="0" cellpadding="0">
                                                 <tr>
-                                                    <td align="center" style="border-radius: 3px;" bgcolor="#BD903E"><a
-                                                            href="${link}" target="_blank"
-                                                            style="font-size: 20px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; color: #ffffff; text-decoration: none; padding: 15px 25px; border-radius: 2px; border: 1px solid #BD903E; display: inline-block;">Confirm
-                                                            Account</a></td>
+                                                    ${object}
                                                 </tr>
                                             </table>
                                         </td>
@@ -170,13 +167,6 @@ export const createHtml = (link) => {
                         </tr> <!-- COPY -->
                         <tr>
                             <td bgcolor="#ffffff" align="left"
-                                style="padding: 20px 30px 20px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
-                                <p style="margin: 0;"><a href="#" target="_blank"
-                                        style="color: #BD903E;">https://bit.li.utlddssdstueincx</a></p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td bgcolor="#ffffff" align="left"
                                 style="padding: 0px 30px 20px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
                                 <p style="margin: 0;">If you have any questions, just reply to this email&mdash;we're always
                                     happy to help out.</p>
@@ -185,7 +175,7 @@ export const createHtml = (link) => {
                         <tr>
                             <td bgcolor="#ffffff" align="left"
                                 style="padding: 0px 30px 40px 30px; border-radius: 0px 0px 4px 4px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
-                                <p style="margin: 0;">Cheers,<br>BBB Team</p>
+                                <p style="margin: 0;">Cheers,<br>Dozan Team</p>
                             </td>
                         </tr>
                     </table>
@@ -200,7 +190,7 @@ export const createHtml = (link) => {
 
 import nodemailer from 'nodemailer';
 
-export const sendEmail = async (to,subject,html) => {
+export const sendEmail = async (to, subject, html) => {
     let transporter = nodemailer.createTransport({
         host: "smtp.ethereal.email",
         port: 587,
@@ -208,7 +198,7 @@ export const sendEmail = async (to,subject,html) => {
         service: "gmail",
         auth: {
             user: process.env.senderEmail, // generated ethereal user
-            pass:  process.env.senderKey, // generated ethereal password
+            pass: process.env.senderKey, // generated ethereal password
         },
     });
 

@@ -10,6 +10,11 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    oldPrice: {
+        type: Number,
+        required: true
+    },
+    
     description: {
         type: String,
         required: true
@@ -43,6 +48,3 @@ const productSchema = new mongoose.Schema({
 
 const productModel = new mongoose.model('Product', productSchema)
 export default productModel
-
-
-/*** */

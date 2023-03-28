@@ -12,7 +12,10 @@ import categoryModel from "../../../DB/models/categoryModel.js";
 
 
 export const addProduct = async (req, res, next) => {
-    const { title, price, description, categoryId } = req.body
+    const { title, price, oldPrice, description, categoryId } = req.body
+    if (oldPrice <= price) {
+        return next(new ErrorClass("old price must be greater than the price with sale", StatusCodes.BAD_REQUEST))
+    }
 
     const catg = await categoryModel.findById(categoryId)
     if (!catg) {
@@ -65,13 +68,13 @@ export const addProduct = async (req, res, next) => {
             mainImage: image?.secure_url,
             video: video?.secure_url,
             images: imagesDB,
-            category: catg.name
+            category: catg.name,
+            oldPrice
         })
-
     } else {
-        added = await productModel.insertMany({ title, price, description, category: catg.name })
+        added = await productModel.insertMany({ title, price, oldPrice, description, category: catg.name })
     }
-    let cat = await categoryModel.updateOne({ _id: categoryId }, {
+    await categoryModel.updateOne({ _id: categoryId }, {
         $push: {
             products: added[0]._id
         }
@@ -80,8 +83,11 @@ export const addProduct = async (req, res, next) => {
 }
 
 export const updateProduct = async (req, res, next) => {
-    const { title, price, description } = req.body
+    const { title, price, description, oldPrice } = req.body
     const { _id } = req.params;
+    if (oldPrice <= price) {
+        return next(new ErrorClass("old price must be greater than the price with sale", StatusCodes.BAD_REQUEST))
+    }
     const product = await productModel.findById(_id) // Is product Exist
     if (!product) {
         return next(new ErrorClass("product not found"));
@@ -125,9 +131,9 @@ export const updateProduct = async (req, res, next) => {
                 resource_type: "video"
             })
         }
-        updatedProduct = await productModel.updateOne({ _id }, { title, price, description, mainImage: image?.secure_url, video: video?.secure_url, images: imagesDB })
+        updatedProduct = await productModel.updateOne({ _id }, { title, oldPrice, price, description, mainImage: image?.secure_url, video: video?.secure_url, images: imagesDB })
     } else {
-        updatedProduct = await productModel.updateOne({ _id }, { title, price, description })
+        updatedProduct = await productModel.updateOne({ _id }, { title, oldPrice, price, description })
     }
     return res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: updatedProduct })
 }

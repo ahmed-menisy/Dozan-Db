@@ -33,3 +33,23 @@ export const NoDataSchema = {
     params: joi.object().required().keys({}),
     query: joi.object().required().keys({}),
 }
+
+
+export const SendCode = {
+    body: joi.object().required().keys({
+        email: joi.string().required().email(),
+    }),
+    params: joi.object().required().keys({}),
+    query: joi.object().required().keys({}),
+}
+
+export const reset = {
+    body: joi.object().required().keys({
+        email: joi.string().required().email(),
+        code: joi.string().required().max(6).max(6),
+        password: joi.string().min(6).required(),
+        confirmPassword: joi.string().valid(joi.ref('password')).required()
+    }),
+    params: joi.object().required().keys({}),
+    query: joi.object().required().keys({}),
+}

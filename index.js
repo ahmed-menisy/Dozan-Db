@@ -26,7 +26,6 @@ app.use(cors())
 
 
 
-
 app.use('/api/v1/users', userRouter)
 app.use('/api/v1/admin', adminRouter)
 app.use('/api/v1/product', productRouter)

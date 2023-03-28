@@ -32,8 +32,20 @@ router.delete('/delete/:id',
 )
 
 
-// router.get('/confirm', asyncErrorHandler(admin.confirmEmail))
+router.get('/confirm/:token', asyncErrorHandler(admin.confirmEmail))
 router.get('/data', asyncErrorHandler(admin.charts))
+router.get('/logout', auth([roles.admin, roles.superAdmin]), validation(adminValidation.noDataSchema), asyncErrorHandler(admin.logOut))
 
+router.post('/send-code',
+    validation(adminValidation.SendCode),
+    asyncErrorHandler(admin.SendCode)
+)
+router.post('/reset-password',
+    validation(adminValidation.reset),
+    asyncErrorHandler(admin.changePass)
+)
+
+
+router.post('/check-token', validation(adminValidation.checkToken), asyncErrorHandler(admin.checkToken))
 
 export default router

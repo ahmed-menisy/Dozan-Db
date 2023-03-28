@@ -27,8 +27,15 @@ export const auth = (roles) => {
 
                 } else if (roles.includes("admin") || roles.includes("superAdmin")) {
                     user = await adminModel.findById(userData.id).select('-password')
-                } 
+                }
                 if (user) {
+                    if (!user.confirmed) {
+                        return next(new ErrorClass('please confirm your email', StatusCodes.BAD_REQUEST));
+                    }
+                    if (!user.isLoggedIn) {
+                        return next(new ErrorClass('login first', StatusCodes.BAD_REQUEST));
+                    }
+
                     if (roles.includes(user.role)) {
                         req.user = user
                         next()
