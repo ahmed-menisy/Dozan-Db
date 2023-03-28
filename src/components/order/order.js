@@ -11,6 +11,12 @@ import userModel from "../../../DB/models/userModel.js";
 import Stripe from "stripe";
 import { paginate } from "../../utils/pagination.js";
 const stripe = new Stripe(process.env.stripe_secret)
+import paypal from 'paypal-rest-sdk'
+paypal.configure({
+    'mode': 'sandbox', //sandbox or live
+    'client_id': '####yourclientid######',
+    'client_secret': '####yourclientsecret#####'
+  });
 /**
  * Get user Order
 */
@@ -126,7 +132,7 @@ export const getUserOrders = async (req, res, next) => {
     const orders = await orderModel.find(delivered[status]).populate([{
         path: 'user',
         select: 'email name'
-    },{
+    }, {
         path: 'products.product',
         select: 'title price description mainImage'
     }])
