@@ -40,7 +40,7 @@ export const getUserCart = async (req, res, next) => {
 
     const carts = await cartModel.findOne({ user }).populate([{
         path: 'products.product',
-        select: 'title price description mainImage'
+        select: 'title price oldPrice description mainImage'
     }])
     let totalCost = 0;
     for (const product of carts.products) {
