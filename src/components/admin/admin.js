@@ -266,7 +266,11 @@ export const charts = async (req, res, next) => {
   for (const order of ordersYear) {
     let item = year[order.createdAt.toString().split(' ')[1]];
     for (const product of order.products) {
-      item[product.product.category] += (product.product.price * product.quantity)
+      if (!product.product) {
+      } else {
+        item[product.product.category] += (product.product.price * product.quantity)
+
+      }
     }
     if (order.createdAt > monthDate) {
       dataMonth.push(order)
@@ -276,33 +280,53 @@ export const charts = async (req, res, next) => {
     if (order.createdAt > moment().subtract(1, 'week')) {
       let item = month.week1
       for (const product of order.products) {
-        item[product.product.category] += (product.product.price * product.quantity)
+        if (!product.product) {
+        } else {
+          item[product.product.category] += (product.product.price * product.quantity)
+
+        }
       }
       dataWeek.push(order)
     }
     else if (order.createdAt > moment().subtract(2, 'week') && order.createdAt < moment().subtract(1, 'week')) {
       let item = month.week2
       for (const product of order.products) {
-        item[product.product.category] += (product.product.price * product.quantity)
+        if (!product.product) {
+        } else {
+          item[product.product.category] += (product.product.price * product.quantity)
+
+        }
       }
     }
     else if (order.createdAt > moment().subtract(3, 'week') && order.createdAt < moment().subtract(2, 'week')) {
       let item = month.week3
       for (const product of order.products) {
-        item[product.product.category] += (product.product.price * product.quantity)
-      }
+        if (!product.product) {
+        } else {
+          item[product.product.category] += (product.product.price * product.quantity)
+  
+        }
+        }
     }
     else if (order.createdAt > moment().subtract(4, 'week') && order.createdAt < moment().subtract(3, 'week')) {
       let item = month.week4
       for (const product of order.products) {
-        item[product.product.category] += (product.product.price * product.quantity)
+        if (!product.product) {
+        } else {
+          item[product.product.category] += (product.product.price * product.quantity)
+
+        }
       }
     }
   }
   for (const order of dataWeek) {
     let item = week[order.createdAt.toString().split(' ')[0]];
     for (const product of order.products) {
-      item[product.product.category] += (product.product.price * product.quantity)
+      if (!product.product) {
+      } else {
+        item[product.product.category] += (product.product.price * product.quantity)
+
+      }
     }
   }
 
