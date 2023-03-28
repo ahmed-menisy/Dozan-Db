@@ -5,7 +5,7 @@ export const errorHandel = (err, req, res, next) => {
     if (err.message.includes("E11000")) {
         return res.status(err.statusCode).json({
             status: 400,
-            msg: "email Already Exist",
+            msg: "supper Admin Already Exist",
         });
     }
     res.status(err.statusCode).json({
@@ -13,7 +13,6 @@ export const errorHandel = (err, req, res, next) => {
         ErrorMessage: err.message,
     });
     console.log(err.stack);
-
 };
 
 

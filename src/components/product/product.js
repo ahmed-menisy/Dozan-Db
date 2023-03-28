@@ -13,10 +13,6 @@ import categoryModel from "../../../DB/models/categoryModel.js";
 
 export const addProduct = async (req, res, next) => {
     const { title, price, oldPrice, description, categoryId } = req.body
-    if (oldPrice <= price) {
-        return next(new ErrorClass("old price must be greater than the price with sale", StatusCodes.BAD_REQUEST))
-    }
-
     const catg = await categoryModel.findById(categoryId)
     if (!catg) {
         return next(new ErrorClass("category not found", StatusCodes.NOT_FOUND))
@@ -85,9 +81,6 @@ export const addProduct = async (req, res, next) => {
 export const updateProduct = async (req, res, next) => {
     const { title, price, description, oldPrice } = req.body
     const { _id } = req.params;
-    if (oldPrice <= price) {
-        return next(new ErrorClass("old price must be greater than the price with sale", StatusCodes.BAD_REQUEST))
-    }
     const product = await productModel.findById(_id) // Is product Exist
     if (!product) {
         return next(new ErrorClass("product not found"));
