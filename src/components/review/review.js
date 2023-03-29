@@ -66,10 +66,15 @@ export const deleteReview = async (req, res, next) => {
     }
     const product = await productModel.findById(review.product);
     const sum = (product.rate * product.reviewNo) - review.rate
-    const newRate = sum / (product.reviewNo - 1)
+    let newRate = sum / (product.reviewNo - 1)
+    // console.log(newRate);
+    if (!newRate) {
+        newRate = 0
+    }
     product.rate = newRate
 
     product.reviewNo = product.reviewNo - 1
+    console.log(product);
     await product.save()
 
     const deleted = await reviewModel.deleteOne({ _id: reviewId })
