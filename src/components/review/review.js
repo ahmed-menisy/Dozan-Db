@@ -30,7 +30,6 @@ export const update = async (req, res, next) => {
     if (!review) {
         return next(new ErrorClass("in-valid review ID", 404))
     }
-    // console.log({ review });
 
     const user = req.user._id;
     // check if the user is authorized to update this review or not
@@ -67,14 +66,12 @@ export const deleteReview = async (req, res, next) => {
     const product = await productModel.findById(review.product);
     const sum = (product.rate * product.reviewNo) - review.rate
     let newRate = sum / (product.reviewNo - 1)
-    // console.log(newRate);
     if (!newRate) {
         newRate = 0
     }
     product.rate = newRate
 
     product.reviewNo = product.reviewNo - 1
-    console.log(product);
     await product.save()
 
     const deleted = await reviewModel.deleteOne({ _id: reviewId })

@@ -15,11 +15,9 @@ export const addToCart = async (req, res, next) => {
         return next(new ErrorClass("Product not found", 404))
     }
     const cart = await cartModel.findOne({ user })
-    console.log(cart);
     const productExist = cart.products.findIndex((ele) => {
         return ele.product == productDetails.product
     })
-    // console.log({ productExist });
     if (productExist == -1) {
         // const upd = cart.products.push(productDetails)
         const cart = await cartModel.updateOne({ user }, {

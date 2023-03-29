@@ -133,7 +133,6 @@ export const changePass = async (req, res) => {
     if (!user) {
         return res.status(StatusCodes.NOT_FOUND).json({ message: "User not found" })
     }
-    console.log(user);
     if (user.code != code) {
         return res.status(StatusCodes.FORBIDDEN).json({ message: "in-valid code" })
     }

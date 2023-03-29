@@ -92,7 +92,6 @@ export const updateProduct = async (req, res, next) => {
         return next(new ErrorClass("this title is already taken", StatusCodes.BAD_REQUEST))
     }
     let video, image, updatedProduct, imagesDB = product.images;
-    // console.log("{ files: req.files }");
     if (req.files) {
         let { mainImage, images, video } = req.files;
         if (mainImage) {

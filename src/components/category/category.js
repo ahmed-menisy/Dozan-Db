@@ -62,7 +62,6 @@ export const getAllCategories = async (req, res, next) => {
         const productsCount = category.products.length;
         let products = category.products.splice(skip, limit)
         const totalPages = Math.ceil(productsCount / size)
-        // console.log(totalPages);
         newCategories.push({
             _id: category._id,
             name: category.name,

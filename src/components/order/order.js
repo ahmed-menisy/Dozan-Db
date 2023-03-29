@@ -210,14 +210,15 @@ export const webhookCheckout = async (req, res, next) => {
     let event;
     event = stripe.webhooks.constructEvent(req.body, sig, process.env.webhook_secret);
     if (event.type == 'checkout.session.completed') {
-        console.log('create order');
+        let { phone, address, products, comment, totalCost, user } = event.data.object.metadata
+        products = JSON.parse(products)
+        user = JSON.parse(user)
+        let order = new orderModel({ phone, address, products, comment, totalCost, user })
+        order = await order.save();
+        res.json({ message: "Done", order });
+    } else {
+        res.json({ message: "payment failed" });
     }
-    let { phone, address, products, comment, totalCost, user } = event.data.object.metadata
-    products = JSON.parse(products)
-    user = JSON.parse(user)
-    let order = new orderModel({ phone, address, products, comment, totalCost, user })
-    order = await order.save();
-    res.json({ message: "Done", order });
 }
 
 
@@ -293,8 +294,6 @@ export const paypalCheckOut = async (req, res, next) => {
         }
     });
 }
-
-
 
 export const success = async (req, res) => {
     const payId = req.params.payId

@@ -304,9 +304,9 @@ export const charts = async (req, res, next) => {
         if (!product.product) {
         } else {
           item[product.product.category] += (product.product.price * product.quantity)
-  
+
         }
-        }
+      }
     }
     else if (order.createdAt > moment().subtract(4, 'week') && order.createdAt < moment().subtract(3, 'week')) {
       let item = month.week4
@@ -376,7 +376,6 @@ export const changePass = async (req, res) => {
   if (!user) {
     return res.status(StatusCodes.NOT_FOUND).json({ message: "User not found" })
   }
-  console.log(user);
   if (user.code != code) {
     return res.status(StatusCodes.FORBIDDEN).json({ message: "in-valid code" })
   }
