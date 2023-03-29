@@ -116,7 +116,6 @@ export const getOrders = async (req, res, next) => {
 export const getUserOrders = async (req, res, next) => {
     const { status } = req.query
     const { userId } = req.params
-    // console.log({userId});
     const user = await userModel.findById(userId)
     if (!user) {
         return next(new ErrorClass("user not found", 404))
