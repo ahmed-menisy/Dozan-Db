@@ -4,7 +4,7 @@ app.use((req, res, next) => {
     if (req.originalUrl === '/api/v1/order/webhook') {
         next(); // Do nothing with the body because I need it in a raw state.
     } else {
-        express.json()(req,res,next) // ONLY do express.json() if the received request is NOT a WebHook from Stripe.
+        express.json()(req, res, next) // ONLY do express.json() if the received request is NOT a WebHook from Stripe.
     }
 });
 import { config } from 'dotenv';
@@ -34,6 +34,10 @@ app.use('/api/v1/review', reviewRouter)
 app.use('/api/v1/category', categoryRouter)
 app.use('/api/v1/cart', cartRouter)
 app.use('/api/v1/favourite', favouriteRouter)
+
+
+
+
 
 
 

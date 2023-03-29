@@ -51,4 +51,18 @@ router.post('/webhook',
     order.webhookCheckout
 )
 
+
+router.post('/paypal-checkout',
+    validation(Val.checkOut),
+    asyncErrorHandler(auth([roles.user])),
+    asyncErrorHandler(order.paypalCheckOut)
+)
+
+
+router.get("/success/:payId",
+    asyncErrorHandler(order.success)
+)
+router.get("/cancel/:payId",
+    asyncErrorHandler(order.cancel)
+)
 export default router

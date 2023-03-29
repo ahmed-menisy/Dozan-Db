@@ -38,10 +38,13 @@ export const addToCart = async (req, res, next) => {
 export const getUserCart = async (req, res, next) => {
     const user = req.user._id
 
-    const carts = await cartModel.findOne({ user }).populate([{
+    let carts = await cartModel.findOne({ user }).populate([{
         path: 'products.product',
-        select: 'title price oldPrice description mainImage'
+        select: 'title price oldPrice description mainImage',
     }])
+    carts.products = carts.products.filter(product =>{
+        return product.product != null
+    })
     let totalCost = 0;
     for (const product of carts.products) {
         totalCost += Number(product.product.price) * Number(product.quantity)

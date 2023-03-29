@@ -10,16 +10,18 @@ import cartModel from "../../../DB/models/cartModel.js";
 import userModel from "../../../DB/models/userModel.js";
 import Stripe from "stripe";
 import { paginate } from "../../utils/pagination.js";
+import paypalOrderModel from "../../../DB/models/paypalOrders.js";
 const stripe = new Stripe(process.env.stripe_secret)
-import paypal from 'paypal-rest-sdk'
+import paypal from "paypal-rest-sdk";
+
+
 paypal.configure({
-    'mode': 'sandbox', //sandbox or live
-    'client_id': process.env.Client_ID,
-    'client_secret': process.env.Client_secret
+    mode: "sandbox", //sandbox or live
+    client_id: process.env.Client_ID,
+    client_secret: process.env.Client_secret,
 });
-/**
- * Get user Order
-*/
+
+
 
 
 export const updateProduct = async (req, res, next) => {
@@ -220,68 +222,117 @@ export const webhookCheckout = async (req, res, next) => {
 }
 
 
-// app.post('/pay', (req, res) => {
-//     const create_payment_json = {
-//         "intent": "sale",
-//         "payer": {
-//             "payment_method": "paypal"
-//         },
-//         "redirect_urls": {
-//             "return_url": "http://localhost:3000/success",
-//             "cancel_url": "http://localhost:3000/cancel"
-//         },
-//         "transactions": [{
-//             "item_list": {
-//                 "items": [{
-//                     "name": "Red Sox Hat",
-//                     "sku": "001",
-//                     "price": "25.00",
-//                     "currency": "USD",
-//                     "quantity": 1
-//                 }]
-//             },
-//             "amount": {
-//                 "currency": "USD",
-//                 "total": "25.00"
-//             },
-//             "description": "Hat for the best team ever"
-//         }]
-//     };
-//     app.get('/success', (req, res) => {
-//         const payerId = req.query.PayerID;
-//         const paymentId = req.query.paymentId;
+export const paypalCheckOut = async (req, res, next) => {
+    const user = req.user._id
+    const { shippingMount, address, phone, comment } = req.body
+    const cart = await cartModel.findOne({ user })
+    //* calculate the total price and find removed products
+    let totalCost = 0
+    let notFound = [], founded = [];
+    const productsFounded = await productModel.find({
+        _id
+            : {
+            $in: cart.products.map(product => {
+                return product.product
+            })
+        }
+    }).select('price');
+    // Validate that all the product IDs were found
+    if (productsFounded.length !== cart.products.length) {
+        notFound = cart.products.filter(product => !productsFounded.find(p => p._id.toString() === product.product));
+    }
+    // Calculate the total cost of the order
+    for (const product of productsFounded) {
+        const orderProduct = cart.products.find(p => p.product.toString() === product._id.toString());
 
-//         const execute_payment_json = {
-//             "payer_id": payerId,
-//             "transactions": [{
-//                 "amount": {
-//                     "currency": "USD",
-//                     "total": "25.00"
-//                 }
-//             }]
-//         };
+        totalCost += Number(product.price) * Number(orderProduct.quantity);
+        founded.push({ product: orderProduct.product, quantity: orderProduct.quantity });
+    }
+    totalCost += shippingMount
+    let paid = new paypalOrderModel({ user, phone, address, products: founded, comment, totalCost })
+    paid = await paid.save();
+    //* create paypal
 
-//         paypal.payment.execute(paymentId, execute_payment_json, function (error, payment) {
-//             if (error) {
-//                 console.log(error.response);
-//                 throw error;
-//             } else {
-//                 console.log(JSON.stringify(payment));
-//                 res.send('Success');
-//             }
-//         });
-//     });
-//     paypal.payment.create(create_payment_json, function (error, payment) {
-//         if (error) {
-//             throw error;
-//         } else {
-//             for (let i = 0; i < payment.links.length; i++) {
-//                 if (payment.links[i].rel === 'approval_url') {
-//                     res.redirect(payment.links[i].href);
-//                 }
-//             }
-//         }
-//     });
+    const create_payment_json = {
+        intent: "sale",
+        payer: {
+            payment_method: "paypal",
+        },
+        redirect_urls: {
+            return_url: `${req.protocol}://${req.headers.host}/api/v1/order/success/${paid._id}`,
+            cancel_url: `${req.protocol}://${req.headers.host}/api/v1/order/cancel/${paid._id}`,
+        },
+        transactions: [
+            {
+                item_list: {
+                    items: [
+                        {
+                            name: req.user.name,
+                            price: totalCost,
+                            currency: "ILS",
+                            quantity: 1,
+                        },
+                    ],
+                },
+                amount: {
+                    currency: "ILS",
+                    total: totalCost,
+                },
+            },
+        ],
+    };
 
-// });
-// app.get('/cancel', (req, res) => res.send('Cancelled'));
+    paypal.payment.create(create_payment_json, function (error, payment) {
+        if (error) {
+            res.json(error);
+        } else {
+            for (let i = 0; i < payment.links.length; i++) {
+                if (payment.links[i].rel === "approval_url") {
+                    res.json({ message: "Done", paymentURL: payment.links[i].href })
+                }
+            }
+        }
+    });
+}
+
+
+
+export const success = async (req, res) => {
+    const payId = req.params.payId
+    const payerId = req.query.PayerID;
+    const paymentId = req.query.paymentId;
+    const order = await paypalOrderModel.findByIdAndDelete(payId)
+    const { phone, address, products, comment, totalCost, user } = order
+    const execute_payment_json = {
+        payer_id: payerId,
+        transactions: [{
+            amount: {
+                currency: 'ILS',
+                total: order.totalCost,
+            },
+        }],
+    };
+    paypal.payment.execute(
+        paymentId,
+        execute_payment_json,
+        async (error, payment) => {
+            if (error) {
+                res.json({ message: error.response });//* it will replace by the front end 
+
+            } else {
+
+                let order = new orderModel({ phone, address, products, comment, totalCost, user })
+                order = await order.save();
+                res.json({ message: "Done", order });//* it will replace by the front end 
+            }
+        }
+    );
+
+}
+
+export const cancel = async (req, res) => {
+    const payId = req.params.payId
+    await paypalOrderModel.findByIdAndDelete(payId)
+    res.json({ message: "Canceled" });
+
+}
