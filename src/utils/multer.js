@@ -15,14 +15,18 @@ export const myMulter = (allowedFiles = filesValidation.image) => {
 
     const storage = multer.diskStorage({})
     const fileFilter = (req, file, cb) => {
-        // console.log(req.body);
-        if (file.originalname.match(allowedFiles)) {
-            cb(null, true)
-        } else {
+        // console.log(file);
+        if (!file.originalname.match(allowedFiles)) {
             cb(new ErrorClass('NOT ALLOWED FILES'), false)
+        } else {
+            cb(null, true)
         }
     }
 
-    const uploads = multer({ fileFilter, storage })
+    const uploads = multer({
+        limits: {
+            fileSize: 10*1024*1024 // 10MB
+        }, fileFilter, storage
+    })
     return uploads
 }
