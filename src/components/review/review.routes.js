@@ -30,4 +30,10 @@ router.get('/get-all-reviews',
     validation(Val.NoDataSchema),
     asyncErrorHandler(review.getAllReviews)
 )
+
+router.get('/get-user-reviews',
+    validation(Val.NoDataSchema),
+    asyncErrorHandler(auth([roles.user])),
+    asyncErrorHandler(review.getUserReviews)
+)
 export default router

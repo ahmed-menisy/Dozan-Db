@@ -91,3 +91,18 @@ export const getAllReviews = async (req, res) => {
     res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: reviews })
 }
 
+
+export const getUserReviews = async (req, res) => {
+    const user = req.user._id
+    let reviews = await reviewModel.find({user}).populate([
+        {
+            path: "user",
+            select: "email"
+        },
+        {
+            path: "product"
+        }
+    ]).select('_id');
+    reviews = reviews.filter(review => review.product != null)
+    res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: reviews })
+}
