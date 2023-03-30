@@ -102,6 +102,7 @@ export const getOrders = async (req, res, next) => {
         path: 'products.product',
         select: 'title oldPrice price description mainImage'
     }])
+    orders = orders.reverse()
     const ordersCount = orders.length;
     orders = orders.splice(skip, limit)
     const totalPages = Math.ceil(ordersCount / size)

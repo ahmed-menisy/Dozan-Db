@@ -23,7 +23,7 @@ export const addProduct = async (req, res, next) => {
         return next(new ErrorClass("this title is already taken", StatusCodes.BAD_REQUEST))
     }
     let video, image, added, imagesDB = [];
-    if (req.files) {
+    if (req.files && req.files.mainImage) {
         let { mainImage, images, video } = req.files;
         if (mainImage) {
             image = await cloudinary.uploader.upload(req.files.mainImage[0].path, {
@@ -68,7 +68,9 @@ export const addProduct = async (req, res, next) => {
             oldPrice
         })
     } else {
-        added = await productModel.insertMany({ title, price, oldPrice, description, category: catg.name })
+
+        return next(new ErrorClass("Please send the main image", StatusCodes.BAD_REQUEST))
+
     }
     await categoryModel.updateOne({ _id: categoryId }, {
         $push: {
