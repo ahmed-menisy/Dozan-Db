@@ -78,7 +78,7 @@ export const deleteReview = async (req, res, next) => {
     res.status(StatusCodes.ACCEPTED).json({ message: "done", result: "deleted" });
 }
 export const getAllReviews = async (req, res) => {
-    const reviews = await reviewModel.find().populate([
+    let reviews = await reviewModel.find().populate([
         {
             path: "user",
             select: "email"
@@ -86,7 +86,8 @@ export const getAllReviews = async (req, res) => {
         {
             path: "product"
         }
-    ]);
+    ]).select('_id');
+    reviews = reviews.filter(review => review.product != null)
     res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: reviews })
 }
 

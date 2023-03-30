@@ -4,7 +4,7 @@ export const addProductSchema = {
     body: joi.object().required().keys({
         title: joi.string().required(),
         price: joi.number().required(),
-        oldPrice: joi.number(),
+        oldPrice: joi.number().valid(),//************************************* */
         description: joi.string().required(),
         categoryId: joi.string().required().max(24).min(24),
         video: joi.allow(),
@@ -18,10 +18,10 @@ export const addProductSchema = {
 
 export const updateProductSchema = {
     body: joi.object().required().keys({
-        title: joi.string().required(),
-        oldPrice: joi.number(),
+        title: joi.string(),
+        oldPrice: joi.number().required(),
         price: joi.number().required(),
-        description: joi.string().required(),
+        description: joi.string(),
         video: joi.allow(),
         images: joi.allow(),
         mainImage: joi.allow()

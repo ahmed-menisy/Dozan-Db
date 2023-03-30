@@ -19,9 +19,11 @@ import categoryRouter from "./src/components/category/category.routes.js";
 import cartRouter from "./src/components/cart/cart.routes.js";
 import favouriteRouter from "./src/components/favourite/favourite.routes.js";
 import cors from "cors"
+import compression from 'compression'
 config()
 connection()
 app.use(cors())
+app.use(compression())
 
 
 

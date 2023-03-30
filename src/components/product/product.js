@@ -13,6 +13,9 @@ import categoryModel from "../../../DB/models/categoryModel.js";
 
 export const addProduct = async (req, res, next) => {
     const { title, price, oldPrice, description, categoryId } = req.body
+    if (oldPrice < price) {
+        return next(new ErrorClass("Old price must be greater than or equal new price", StatusCodes.NOT_FOUND))
+    }
     const catg = await categoryModel.findById(categoryId)
     if (!catg) {
         return next(new ErrorClass("category not found", StatusCodes.NOT_FOUND))
@@ -83,6 +86,9 @@ export const addProduct = async (req, res, next) => {
 export const updateProduct = async (req, res, next) => {
     const { title, price, description, oldPrice } = req.body
     const { _id } = req.params;
+    if (oldPrice < price) {
+        return next(new ErrorClass("Old price must be greater than or equal new price", StatusCodes.NOT_FOUND))
+    }
     const product = await productModel.findById(_id) // Is product Exist
     if (!product) {
         return next(new ErrorClass("product not found"));
@@ -138,6 +144,7 @@ export const deleteProduct = async (req, res, next) => {
     if (!product) {
         return next(new ErrorClass('in-valid-product ID', StatusCodes.NOT_FOUND));
     }
+    await reviewModel.deleteMany({ product: product._id })
     return res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: product })
 }
 
