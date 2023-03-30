@@ -86,7 +86,7 @@ export const getAllReviews = async (req, res) => {
         {
             path: "product"
         }
-    ]).select('_id');
+    ])
     reviews = reviews.filter(review => review.product != null)
     res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: reviews })
 }
@@ -102,7 +102,7 @@ export const getUserReviews = async (req, res) => {
         {
             path: "product"
         }
-    ]).select('_id');
+    ])
     reviews = reviews.filter(review => review.product != null)
     res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: reviews })
 }
