@@ -40,9 +40,10 @@ export const getUserCart = async (req, res, next) => {
         path: 'products.product',
         select: 'title price oldPrice description mainImage',
     }])
-    carts.products = carts.products.filter(product =>{
+    carts.products = carts.products.filter(product => {
         return product.product != null
     })
+    await carts.save()
     let totalCost = 0;
     for (const product of carts.products) {
         totalCost += Number(product.product.price) * Number(product.quantity)
@@ -51,7 +52,6 @@ export const getUserCart = async (req, res, next) => {
 }
 
 export const updateCart = async (req, res, next) => {
-
     const productId = req.params._id
     const user = req.user._id
     const { quantity } = req.body;
@@ -64,9 +64,14 @@ export const updateCart = async (req, res, next) => {
         select: 'title price description mainImage'
     }])
     if (!cart) {
-        return next(new ErrorClass("cart not found", StatusCodes.NOT_FOUND));
+        return next(new ErrorClass("product not found", StatusCodes.NOT_FOUND));
     }
     let totalCost = 0
+    cart.products = cart.products.filter(product => {
+        return product.product != null
+    })
+    await cart.save()
+    console.log({ cart: cart.products });
     for (const product of cart.products) {
         totalCost += Number(product.product.price) * Number(product.quantity)
     }

@@ -60,7 +60,13 @@ export const getUserOrderSchema = {
     }),
 }
 
-
+export const orderById = {
+    body: joi.object().required().keys({}),
+    params: joi.object().required().keys({
+        _id: joi.string().max(24).min(24).required()
+    }),
+    query: joi.object().required().keys({}),
+}
 export const checkOut = {
     body: joi.object().required().keys({
         shippingMount: joi.number().min(0).required(),

@@ -12,13 +12,13 @@ const router = Router();
 router.patch('/update-order/:_id',
     validation(Val.updateOrderVal),
     asyncErrorHandler(auth([roles.user])),
-    asyncErrorHandler(order.updateProduct)
+    asyncErrorHandler(order.updateOrder)
 )
 
 router.delete('/delete-order/:_id',
     validation(Val.deleteOrderVal),
     asyncErrorHandler(auth([roles.user])),
-    asyncErrorHandler(order.deleteProduct)
+    asyncErrorHandler(order.deleteOrder)
 )
 
 
@@ -35,10 +35,14 @@ router.get('/get-orders',
 )
 router.get('/get-user-orders/:userId',
     validation(Val.getUserOrderSchema),
-    asyncErrorHandler(auth([roles.admin, roles.superAdmin, roles.user])),
+    asyncErrorHandler(auth([roles.admin, roles.superAdmin])),
     asyncErrorHandler(order.getUserOrders)
 )
-
+router.get('/get-order-by-id/:_id',
+    validation(Val.orderById),
+    asyncErrorHandler(auth([roles.admin, roles.superAdmin])),
+    asyncErrorHandler(order.orderById)
+)
 
 router.post('/checkout',
     validation(Val.checkOut),

@@ -24,7 +24,7 @@ paypal.configure({
 
 
 
-export const updateProduct = async (req, res, next) => {
+export const updateOrder = async (req, res, next) => {
     const orderID = req.params._id
     const order = await orderModel.findById(orderID)
     if (!order) {
@@ -46,18 +46,17 @@ export const updateProduct = async (req, res, next) => {
     // Calculate the total cost of the order
     for (const product of productsFounded) {
         const orderProduct = products.find(p => p.product === product._id.toString());
-        totalCost += Number(product.price) * Number(orderProduct.quantity);
         founded.push({ product: orderProduct.product, quantity: orderProduct.quantity });
     }
     if (notFound.length == products.length) {
         return next(new ErrorClass("All products not found", 404))
     }
 
-    const updatedOrder = await orderModel.updateOne({ _id: order._id }, { totalCost, phone, address, products: founded, comment })
+    const updatedOrder = await orderModel.updateOne({ _id: order._id }, { phone, address, products: founded, comment })
     res.status(StatusCodes.ACCEPTED).json({ message: "Done", InValidProductId: notFound, result: updatedOrder })
 }
 
-export const deleteProduct = async (req, res, next) => {
+export const deleteOrder = async (req, res, next) => {
     const orderID = req.params._id
     const order = await orderModel.findById(orderID)
 
@@ -83,6 +82,16 @@ export const markAsDelivered = async (req, res, next) => {
     res.json({ delivered });
 }
 
+// order.products = order.products.filter(product => {
+//     return product.product != null
+// })
+// await order.save()
+// for (const product of order.products) {
+//     totalCost += product.product.price * product.quantity;
+// }
+// order._doc.totalCost = totalCost
+
+
 export const getOrders = async (req, res, next) => {
     const { status, page, size } = req.query
     const delivered = {
@@ -102,6 +111,18 @@ export const getOrders = async (req, res, next) => {
         path: 'products.product',
         select: 'title oldPrice price description mainImage'
     }])
+    let totalCost = 0
+    for (const order of orders) {
+        order.products = order.products.filter(product => {
+            return product.product != null
+        })
+        await order.save()
+        for (const product of order.products) {
+            totalCost += product.product.price * product.quantity;
+        }
+        order._doc.totalCost = totalCost
+        totalCost = 0
+    }
     orders = orders.reverse()
     const ordersCount = orders.length;
     orders = orders.splice(skip, limit)
@@ -131,15 +152,55 @@ export const getUserOrders = async (req, res, next) => {
         not_delivered: { delivered: false }
     }
     delivered.user = userId
-    const orders = await orderModel.find(delivered[status]).populate([{
+    let orders = await orderModel.find(delivered[status]).populate([{
         path: 'user',
         select: 'email name'
     }, {
         path: 'products.product',
         select: 'title price description mainImage'
     }])
+    let totalCost = 0
+    for (const order of orders) {
+        order.products = order.products.filter(product => {
+            return product.product != null
+        })
+        await order.save()
+        for (const product of order.products) {
+            totalCost += product.product.price * product.quantity;
+        }
+        order._doc.totalCost = totalCost
+        totalCost = 0
+    }
+    orders = orders.reverse()
+
     res.status(StatusCodes.ACCEPTED).json({ result: orders })
 }
+
+export const orderById = async (req, res, next) => {
+    const { _id } = req.params
+    let totalCost = 0
+    const order = await orderModel.findById(_id).populate([{
+        path: 'user',
+        select: 'email name'
+    }, {
+        path: 'products.product',
+        select: 'title price description mainImage'
+    }])
+    if (!order) {
+        return next(new ErrorClass("Order not found", 404))
+    }
+    order.products = order.products.filter(product => {
+        return product.product != null
+    })
+    await order.save()
+    for (const product of order.products) {
+        totalCost += product.product.price * product.quantity;
+    }
+    order._doc.totalCost = totalCost
+
+    res.status(StatusCodes.ACCEPTED).json({ result: order })
+}
+
 
 export const checkout = async (req, res, next) => {
     const user = req.user._id
@@ -168,7 +229,7 @@ export const checkout = async (req, res, next) => {
         totalCost += Number(product.price) * Number(orderProduct.quantity);
         founded.push({ product: orderProduct.product, quantity: orderProduct.quantity });
     }
-    totalCost += shippingMount
+    totalCost += Number(shippingMount)
 
 
     //* create stripe session
@@ -200,10 +261,7 @@ export const checkout = async (req, res, next) => {
         }
     })
 
-    notFound.length ? res.status(StatusCodes.ACCEPTED).json({
-        removedProduct: `Products with IDs [ ${notFound.map(product => product.product).join(', ')} ] has been removed`, payment_url: session.url
-    }) :
-        res.status(StatusCodes.ACCEPTED).json({ message: "Done", payment_url: session.url })
+    res.status(StatusCodes.ACCEPTED).json({ message: "Done", payment_url: session.url })
 }
 
 export const webhookCheckout = async (req, res, next) => {
@@ -249,7 +307,7 @@ export const paypalCheckOut = async (req, res, next) => {
         totalCost += Number(product.price) * Number(orderProduct.quantity);
         founded.push({ product: orderProduct.product, quantity: orderProduct.quantity });
     }
-    totalCost += shippingMount
+    totalCost += Number(shippingMount)
     let paid = new paypalOrderModel({ user, phone, address, products: founded, comment, totalCost })
     paid = await paid.save();
     //* create paypal

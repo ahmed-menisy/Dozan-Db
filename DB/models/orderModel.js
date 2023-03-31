@@ -30,10 +30,6 @@ const orderSchema = new mongoose.Schema({
         required: true,
     },
     products: [product],
-    totalCost: {
-        type: Number,
-        required: true
-    },
     comment: {
         type: String
     },

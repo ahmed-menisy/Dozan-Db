@@ -8,6 +8,7 @@ import ErrorClass from "../../utils/ErrorClass.js";
 import { paginate } from "../../utils/pagination.js";
 import reviewModel from "../../../DB/models/reviewModel.js";
 import categoryModel from "../../../DB/models/categoryModel.js";
+import orderModel from "../../../DB/models/orderModel.js";
 
 
 
@@ -143,6 +144,12 @@ export const deleteProduct = async (req, res, next) => {
     const product = await productModel.findByIdAndDelete({ _id })
     if (!product) {
         return next(new ErrorClass('in-valid-product ID', StatusCodes.NOT_FOUND));
+    }
+    const ordered = await orderModel.findOne(
+        { 'products.product': _id, delivered: false }
+    )
+    if (ordered) {
+        return next(new ErrorClass("You can't delete this product before deliver it for order with id " + ordered._id, StatusCodes.BAD_REQUEST));
     }
     await reviewModel.deleteMany({ product: product._id })
     return res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: product })
