@@ -38,7 +38,10 @@ router.get('/confirm/:token',
 router.get('/data',
     admin.charts
 )
-router.get('/logout', auth([roles.admin, roles.superAdmin]), validation(adminValidation.noDataSchema), asyncErrorHandler(admin.logOut))
+router.get('/logout',
+    auth([roles.admin, roles.superAdmin]),
+    validation(adminValidation.noDataSchema),
+    asyncErrorHandler(admin.logOut))
 
 router.post('/send-code',
     validation(adminValidation.SendCode),

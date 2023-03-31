@@ -13,7 +13,9 @@ import orderModel from "../../../DB/models/orderModel.js";
 
 
 export const addProduct = async (req, res, next) => {
-    const { title, price, oldPrice, description, categoryId } = req.body
+    let { title, price, oldPrice, description, categoryId } = req.body
+    price = Number(price)
+    oldPrice = Number(oldPrice)
     if (oldPrice < price) {
         return next(new ErrorClass("Old price must be greater than or equal new price", StatusCodes.NOT_FOUND))
     }
@@ -85,8 +87,11 @@ export const addProduct = async (req, res, next) => {
 }
 
 export const updateProduct = async (req, res, next) => {
-    const { title, price, description, oldPrice } = req.body
+    let { title, price, description, oldPrice } = req.body
     const { _id } = req.params;
+    price = Number(price)
+    oldPrice = Number(oldPrice)
+
     if (oldPrice < price) {
         return next(new ErrorClass("Old price must be greater than or equal new price", StatusCodes.NOT_FOUND))
     }

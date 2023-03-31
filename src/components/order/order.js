@@ -82,14 +82,6 @@ export const markAsDelivered = async (req, res, next) => {
     res.json({ delivered });
 }
 
-// order.products = order.products.filter(product => {
-//     return product.product != null
-// })
-// await order.save()
-// for (const product of order.products) {
-//     totalCost += product.product.price * product.quantity;
-// }
-// order._doc.totalCost = totalCost
 
 
 export const getOrders = async (req, res, next) => {
@@ -204,9 +196,10 @@ export const orderById = async (req, res, next) => {
 
 export const checkout = async (req, res, next) => {
     const user = req.user._id
-    const { shippingMount, address, phone, comment } = req.body
+    let { shippingMount, address, phone, comment } = req.body
     const cart = await cartModel.findOne({ user })
     //* calculate the total price and find removed products
+    shippingMount = Number(shippingMount)
 
     let totalCost = 0
     let notFound = [], founded = [];
@@ -283,7 +276,9 @@ export const webhookCheckout = async (req, res, next) => {
 
 export const paypalCheckOut = async (req, res, next) => {
     const user = req.user._id
-    const { shippingMount, address, phone, comment } = req.body
+    let { shippingMount, address, phone, comment } = req.body
+    shippingMount = Number(shippingMount)
+
     const cart = await cartModel.findOne({ user })
     //* calculate the total price and find removed products
     let totalCost = 0
