@@ -165,6 +165,7 @@ export const getAllProducts = async (req, res, next) => {
     const { skip, limit } = paginate(page, size)
     let products = []
     products = await productModel.find()
+    products = products.reverse()
     const productsCount = products.length;
     products = products.splice(skip, limit)
     const totalPages = Math.ceil(productsCount / size)

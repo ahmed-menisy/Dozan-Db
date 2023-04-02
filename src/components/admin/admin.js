@@ -9,6 +9,7 @@ import ErrorClass from '../../utils/ErrorClass.js';
 import jwt from 'jsonwebtoken';
 import { roles } from '../../middleware/auth.js';
 import { createHtml, sendEmail } from '../../utils/sendEmail.js';
+import userModel from '../../../DB/models/userModel.js';
 
 
 export const addAdmin = async (req, res, next) => {
@@ -75,14 +76,27 @@ export const confirmEmail = async (req, res) => {
 export const changePassword = async (req, res, next) => {
   const { oldPass, newPass } = req.body;
   const id = req.user.id
-  const user = await adminModel.findById(id);
+  let user;
+  if (req.user.role == roles.admin || req.user.role == roles.superAdmin) {
+    user = await adminModel.findById(id);
+  }
+  else {
+    user = await userModel.findById(id);
+  }
   const correctPass = bcryptjs.compareSync(oldPass, user.password)
   if (!correctPass) {
     return next(new ErrorClass('invalid password', StatusCodes.BAD_REQUEST))
   }
-  const newpassHashed = bcryptjs.hashSync(newPass, +process.env.salt)
-  const upatedUser = await adminModel.findByIdAndUpdate(id, { password: newpassHashed }, { new: true })
-  res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: upatedUser })
+  const newPassHashed = bcryptjs.hashSync(newPass, +process.env.salt)
+  let updatedUser;
+  if (req.user.role == roles.admin || req.user.role == roles.superAdmin) {
+    updatedUser = await adminModel.findByIdAndUpdate(id, { password: newPassHashed }, { new: true })
+  } else {
+    updatedUser = await userModel.findByIdAndUpdate(id, { password: newPassHashed }, { new: true })
+
+  }
+
+  res.status(StatusCodes.ACCEPTED).json({ message: "Done", result: updatedUser })
 }
 
 export const update = async (req, res, next) => {

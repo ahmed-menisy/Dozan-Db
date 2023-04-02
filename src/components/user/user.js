@@ -96,6 +96,8 @@ export const logOut = async (req, res) => {
     res.json({ message: "Log Out successfully" })
 }
 
+
+
 export const SendCode = async (req, res, next) => {
     const { email } = req.body;
     const user = await userModel.findOne({ email })

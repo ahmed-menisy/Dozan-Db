@@ -17,7 +17,7 @@ router.post('/signin',
 )
 router.patch('/change-password',
     validation(adminValidation.changePassSchema),
-    asyncErrorHandler(auth([roles.admin, roles.superAdmin])),
+    asyncErrorHandler(auth([roles.admin, roles.superAdmin, roles.user])),
     asyncErrorHandler(admin.changePassword)
 )
 router.patch('/update',
