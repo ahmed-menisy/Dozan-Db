@@ -267,6 +267,9 @@ export const webhookCheckout = async (req, res, next) => {
         user = JSON.parse(user)
         let order = new orderModel({ phone, address, products, comment, totalCost, user })
         order = await order.save();
+        let cart = await cartModel.findOne({ user });
+        cart.products = [];
+        await cart.save();
         res.json({ message: "Done", order });
     } else {
         res.json({ message: "payment failed" });
@@ -375,6 +378,9 @@ export const success = async (req, res) => {
 
                 let order = new orderModel({ phone, address, products, comment, totalCost, user })
                 order = await order.save();
+                let cart = await cartModel.findOne({ user });
+                cart.products = [];
+                await cart.save();       
                 res.json({ message: "Done", order });//* it will replace by the front end 
             }
         }
