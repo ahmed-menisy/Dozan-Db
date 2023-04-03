@@ -196,6 +196,9 @@ export const checkout = async (req, res, next) => {
     const user = req.user._id
     let { shippingMount, address, phone, comment } = req.body
     const cart = await cartModel.findOne({ user })
+    if (!cart.products.length) {
+        return next(new ErrorClass("No products found", 404))
+    }
     //* calculate the total price and find removed products
     shippingMount = Number(shippingMount)
 
@@ -280,6 +283,10 @@ export const paypalCheckOut = async (req, res, next) => {
     shippingMount = Number(shippingMount)
 
     const cart = await cartModel.findOne({ user })
+    if (!cart.products.length) {
+        return next(new ErrorClass("No products found", 404))
+    }
+
     //* calculate the total price and find removed products
     let totalCost = 0
     let notFound = [], founded = [];
