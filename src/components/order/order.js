@@ -82,8 +82,6 @@ export const markAsDelivered = async (req, res, next) => {
     res.json({ delivered });
 }
 
-
-
 export const getOrders = async (req, res, next) => {
     const { status, page, size } = req.query
     const delivered = {
@@ -259,8 +257,7 @@ export const checkout = async (req, res, next) => {
 
 export const webhookCheckout = async (req, res, next) => {
     const sig = req.headers['stripe-signature'];
-    let event;
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.webhook_secret);
+    let event = stripe.webhooks.constructEvent(req.body, sig, process.env.webhook_secret);
     if (event.type == 'checkout.session.completed') {
         let { phone, address, products, comment, totalCost, user } = event.data.object.metadata
         products = JSON.parse(products)

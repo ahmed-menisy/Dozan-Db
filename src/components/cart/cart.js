@@ -20,16 +20,18 @@ export const addToCart = async (req, res, next) => {
     })
     if (productExist == -1) {
         // const upd = cart.products.push(productDetails)
-        const cart = await cartModel.updateOne({ user }, {
+        const cart = await cartModel.findOneAndUpdate({ user }, {
             $push: {
                 products: productDetails
             }
-        })
+        }, { new: true })
+        return res.status(StatusCodes.CREATED).json({ message: "Done", cart })
+
     } else {
         cart.products[productExist].quantity = cart.products[productExist].quantity + productDetails.quantity
         await cart.save();
     }
-    res.status(StatusCodes.CREATED).json({ message: "message", cart })
+    res.status(StatusCodes.CREATED).json({ message: "Done", cart })
 }
 
 
