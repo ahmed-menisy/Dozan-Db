@@ -415,7 +415,7 @@ export const clientToken = async (req, res, next) => {
 }
 
 export const brainTreeCheckOut = async (req, res, next) => {
-    const nonceFromTheClient = req.body.payment_method_nonce;
+    const nonceFromTheClient = req.body;
     // Use payment method nonce here
     gateway.transaction.sale({
         amount: nonceFromTheClient.chargeAmount,
