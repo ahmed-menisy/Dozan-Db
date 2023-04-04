@@ -13,12 +13,18 @@ import { paginate } from "../../utils/pagination.js";
 import paypalOrderModel from "../../../DB/models/paypalOrders.js";
 const stripe = new Stripe(process.env.stripe_secret)
 import paypal from "paypal-rest-sdk";
-
-
+import braintree from 'braintree';
+import jwt from 'jsonwebtoken'
 paypal.configure({
     mode: "sandbox", //sandbox or live
     client_id: process.env.Client_ID,
     client_secret: process.env.Client_secret,
+});
+const gateway = new braintree.BraintreeGateway({
+    environment: braintree.Environment.Sandbox,
+    merchantId: process.env.merchantId,
+    publicKey: process.env.publicKey,
+    privateKey: process.env.privateKey
 });
 
 
@@ -384,7 +390,7 @@ export const success = async (req, res) => {
                 order = await order.save();
                 let cart = await cartModel.findOne({ user });
                 cart.products = [];
-                await cart.save();       
+                await cart.save();
                 res.json({ message: "Done", order });//* it will replace by the front end 
             }
         }
@@ -397,4 +403,29 @@ export const cancel = async (req, res) => {
     await paypalOrderModel.findByIdAndDelete(payId)
     res.json({ message: "Canceled" });
 
+}
+
+
+
+
+export const clientToken = async (req, res, next) => {
+    gateway.clientToken.generate({}).then(response => {
+        res.json({ token: response.clientToken });
+    });
+}
+
+export const brainTreeCheckOut = async (req, res, next) => {
+    const nonceFromTheClient = req.body.payment_method_nonce;
+    // Use payment method nonce here
+    gateway.transaction.sale({
+        amount: nonceFromTheClient.chargeAmount,
+        paymentMethodNonce: nonceFromTheClient.nonce,
+        options: {
+            submitForSettlement: true
+        }
+    }).then(result => {
+        res.json({ result });
+    }).catch(err => {
+        res.json({ err })
+    });
 }

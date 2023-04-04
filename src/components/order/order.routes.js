@@ -8,7 +8,6 @@ import * as Val from './order.validation.js';
 const router = Router();
 
 
-
 router.patch('/update-order/:_id',
     validation(Val.updateOrderVal),
     asyncErrorHandler(auth([roles.user])),
@@ -69,4 +68,10 @@ router.get("/success/:payId",
 router.get("/cancel/:payId",
     asyncErrorHandler(order.cancel)
 )
+
+router.get('/client-token', asyncErrorHandler(order.clientToken))
+
+router.post("/brain-tree-checkout", order.brainTreeCheckOut);
+
+
 export default router
