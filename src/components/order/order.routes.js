@@ -71,7 +71,7 @@ router.get("/cancel/:payId",
 
 router.get('/client-token', asyncErrorHandler(order.clientToken))
 
-router.post("/brain-tree-checkout", order.brainTreeCheckOut);
+router.post("/brain-tree-checkout",asyncErrorHandler(auth([roles.user])), order.brainTreeCheckOut);
 
 
 export default router

@@ -424,7 +424,14 @@ export const brainTreeCheckOut = async (req, res, next) => {
             submitForSettlement: true
         }
     }).then(result => {
-        res.json({ result });
+
+
+        if (result.success) {
+            res.json({ result: result.success, user: req.user });
+        } else {
+            res.json({ result });
+        }
+
     }).catch(err => {
         res.json({ err })
     });
