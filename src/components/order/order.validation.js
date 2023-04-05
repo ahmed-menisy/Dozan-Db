@@ -77,3 +77,14 @@ export const checkOut = {
     params: joi.object().required().keys({}),
     query: joi.object().required().keys({}),
 }
+
+export const brainTreeCheckOut = {
+    body: joi.object().required().keys({}),
+    params: joi.object().required().keys({}),
+    query: joi.object().required().keys({
+        shippingMount: joi.number().min(0).required(),
+        phone: joi.string().required(),
+        address: joi.string().required(),
+        comment: joi.string()
+    }),
+}

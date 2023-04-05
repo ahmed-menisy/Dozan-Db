@@ -423,11 +423,40 @@ export const brainTreeCheckOut = async (req, res, next) => {
         options: {
             submitForSettlement: true
         }
-    }).then(result => {
-
-
+    }).then(async (result) => {
         if (result.success) {
-            res.json({ result: result.success, user: req.user });
+            const user = req.user._id;
+            const { address, phone, comment, shippingMount } = req.query
+            const cart = await cartModel.findOne({ user })
+
+            //* calculate the total price and find removed products
+            let totalCost = 0
+            let notFound = [], founded = [];
+            const productsFounded = await productModel.find({
+                _id
+                    : {
+                    $in: cart.products.map(product => {
+                        return product.product
+                    })
+                }
+            }).select('price');
+            // Validate that all the product IDs were found
+            if (productsFounded.length !== cart.products.length) {
+                notFound = cart.products.filter(product => !productsFounded.find(p => p._id.toString() === product.product));
+            }
+            // Calculate the total cost of the order
+            for (const product of productsFounded) {
+                const orderProduct = cart.products.find(p => p.product.toString() === product._id.toString());
+
+                totalCost += Number(product.price) * Number(orderProduct.quantity);
+                founded.push({ product: orderProduct.product, quantity: orderProduct.quantity });
+            }
+            totalCost += Number(shippingMount)
+            let order = new orderModel({ phone, address, products: founded, comment, totalCost, user })
+            order = await order.save();
+            cart.products = [];
+            await cart.save();
+            res.json({ result: result.success, order });
         } else {
             res.json({ result });
         }
