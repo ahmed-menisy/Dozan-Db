@@ -460,7 +460,6 @@ export const brainTreeCheckOut = async (req, res, next) => {
         } else {
             res.json({ result });
         }
-
     }).catch(err => {
         res.json({ err })
     });
