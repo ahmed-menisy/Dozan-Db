@@ -11,20 +11,20 @@ import userModel from "../../../DB/models/userModel.js";
 import Stripe from "stripe";
 import { paginate } from "../../utils/pagination.js";
 import paypalOrderModel from "../../../DB/models/paypalOrders.js";
-const stripe = new Stripe(process.env.stripe_secret)
+const stripe = new Stripe('sk_test_51MpD51AUsfiu2LC2yQ0merf2K3tdQjN9CBmYrzFf1UID9vDTrA2a04x5c3ivOq0m9hl8IM4D9QKOx9PhTLx3wN3p00HHNdHZ2Q')
 import paypal from "paypal-rest-sdk";
 import braintree from 'braintree';
 import jwt from 'jsonwebtoken'
 paypal.configure({
     mode: "sandbox", //sandbox or live
-    client_id: process.env.Client_ID,
-    client_secret: process.env.Client_secret,
+    client_id: 'AQ53sHRm8p528bk5EeryxAzTNTEmuCWC50R9j9_TDA_t6O6oxW9fmcmHBhxLsyv4iux5Eg-8aQ_eE42u',
+    client_secret: 'EFxXRICPZbQo9uJ6hSYrF_k_w04YJcHey-Uf45SYfWuGybl0sstsef3wdh3_08kD0XUSThDW9fQpKdPS',
 });
 const gateway = new braintree.BraintreeGateway({
     environment: braintree.Environment.Sandbox,
-    merchantId: process.env.merchantId,
-    publicKey: process.env.publicKey,
-    privateKey: process.env.privateKey
+    merchantId: 's569qhrq2ndwjmkz',
+    publicKey: 'hpr6k57dktfpzps7',
+    privateKey: 'c5ea3cf8cf5b9dba1599492809f963ec'
 });
 
 
@@ -266,7 +266,7 @@ export const checkout = async (req, res, next) => {
 
 export const webhookCheckout = async (req, res, next) => {
     const sig = req.headers['stripe-signature'];
-    let event = stripe.webhooks.constructEvent(req.body, sig, process.env.webhook_secret);
+    let event = stripe.webhooks.constructEvent(req.body, sig, 'whsec_WINAHd9KEH1JsrhfEyEk7e7Baz91497v');
     if (event.type == 'checkout.session.completed') {
         let { phone, address, products, comment, totalCost, user } = event.data.object.metadata
         products = JSON.parse(products)
@@ -417,41 +417,42 @@ export const clientToken = async (req, res, next) => {
 export const brainTreeCheckOut = async (req, res, next) => {
     const nonceFromTheClient = req.body;
     // Use payment method nonce here
+    const user = req.user._id;
+    const { address, phone, comment, shippingMount } = req.query
+    const cart = await cartModel.findOne({ user })
+
+    //* calculate the total price and find removed products
+    let totalCost = 0
+    let notFound = [], founded = [];
+    const productsFounded = await productModel.find({
+        _id
+            : {
+            $in: cart.products.map(product => {
+                return product.product
+            })
+        }
+    }).select('price');
+    // Validate that all the product IDs were found
+    if (productsFounded.length !== cart.products.length) {
+        notFound = cart.products.filter(product => !productsFounded.find(p => p._id.toString() === product.product));
+    }
+    // Calculate the total cost of the order
+    for (const product of productsFounded) {
+        const orderProduct = cart.products.find(p => p.product.toString() === product._id.toString());
+
+        totalCost += Number(product.price) * Number(orderProduct.quantity);
+        founded.push({ product: orderProduct.product, quantity: orderProduct.quantity });
+    }
+    totalCost += Number(shippingMount)
+
     gateway.transaction.sale({
-        amount: nonceFromTheClient.chargeAmount,
+        amount: totalCost,
         paymentMethodNonce: nonceFromTheClient.nonce,
         options: {
             submitForSettlement: true
         }
     }).then(async (result) => {
         if (result.success) {
-            const user = req.user._id;
-            const { address, phone, comment, shippingMount } = req.query
-            const cart = await cartModel.findOne({ user })
-
-            //* calculate the total price and find removed products
-            let totalCost = 0
-            let notFound = [], founded = [];
-            const productsFounded = await productModel.find({
-                _id
-                    : {
-                    $in: cart.products.map(product => {
-                        return product.product
-                    })
-                }
-            }).select('price');
-            // Validate that all the product IDs were found
-            if (productsFounded.length !== cart.products.length) {
-                notFound = cart.products.filter(product => !productsFounded.find(p => p._id.toString() === product.product));
-            }
-            // Calculate the total cost of the order
-            for (const product of productsFounded) {
-                const orderProduct = cart.products.find(p => p.product.toString() === product._id.toString());
-
-                totalCost += Number(product.price) * Number(orderProduct.quantity);
-                founded.push({ product: orderProduct.product, quantity: orderProduct.quantity });
-            }
-            totalCost += Number(shippingMount)
             let order = new orderModel({ phone, address, products: founded, comment, totalCost, user })
             order = await order.save();
             cart.products = [];

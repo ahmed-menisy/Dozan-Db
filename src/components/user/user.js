@@ -15,7 +15,7 @@ export const signUp = async (req, res, next) => {
     if (isExist) {
         return next(new ErrorClass("email exist", StatusCodes.BAD_REQUEST))
     }
-    const hashedPass = bcryptjs.hashSync(password, Number(process.env.salt))
+    const hashedPass = bcryptjs.hashSync(password, 5)
     let newUser = new userModel({ name, email, password: hashedPass })
     newUser = await newUser.save()
     const payload = {

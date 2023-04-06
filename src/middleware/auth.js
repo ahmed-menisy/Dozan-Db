@@ -18,9 +18,9 @@ export const auth = (roles) => {
     return async (req, res, next) => {
         const startToken = req.headers.token;
         if (startToken) {
-            if (startToken.startsWith(process.env.TokenStart)) {
+            if (startToken.startsWith('Dozan')) {
                 const token = startToken.split(' ')[1]
-                const userData = jwt.verify(token, process.env.tokenSecret)
+                const userData = jwt.verify(token, 'Dozan')
                 let user
                 if (roles.includes("user")) {
                     user = await userModel.findById(userData.id).select('-password')

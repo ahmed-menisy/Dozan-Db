@@ -14,7 +14,7 @@ import userModel from '../../../DB/models/userModel.js';
 
 export const addAdmin = async (req, res, next) => {
   const { name, email, password } = req.body;
-  const hashedPassword = bcryptjs.hashSync(password, +process.env.salt)
+  const hashedPassword = bcryptjs.hashSync(password, 5)
   const AdminAdded = await adminModel.insertMany({ name, email, password: hashedPassword })
   const payload = {
     id: AdminAdded[0]._id,
@@ -87,7 +87,7 @@ export const changePassword = async (req, res, next) => {
   if (!correctPass) {
     return next(new ErrorClass('invalid password', StatusCodes.BAD_REQUEST))
   }
-  const newPassHashed = bcryptjs.hashSync(newPass, +process.env.salt)
+  const newPassHashed = bcryptjs.hashSync(newPass, 5)
   let updatedUser;
   if (req.user.role == roles.admin || req.user.role == roles.superAdmin) {
     updatedUser = await adminModel.findByIdAndUpdate(id, { password: newPassHashed }, { new: true })

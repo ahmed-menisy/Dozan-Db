@@ -197,8 +197,8 @@ export const sendEmail = async (to, subject, html) => {
         secure: false, // true for 465, false for other ports
         service: "gmail",
         auth: {
-            user: process.env.senderEmail, // generated ethereal user
-            pass: process.env.senderKey, // generated ethereal password
+            user: 'dozanperfumes@gmail.com', // generated ethereal user
+            pass: 'ynnmfnggqmdbkpsq', // generated ethereal password
         },
     });
 

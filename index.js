@@ -7,7 +7,6 @@ app.use((req, res, next) => {
         express.json()(req, res, next) // ONLY do express.json() if the received request is NOT a WebHook from Stripe.
     }
 });
-import { config } from 'dotenv';
 import connection from './DB/connection.js';
 import { errorHandel } from './src/utils/errorHandeling.js';
 import userRouter from './src/components/user/user.routes.js';
@@ -20,7 +19,6 @@ import cartRouter from "./src/components/cart/cart.routes.js";
 import favouriteRouter from "./src/components/favourite/favourite.routes.js";
 import cors from "cors"
 import compression from 'compression'
-config()
 connection()
 app.use(cors())
 app.use(compression())
@@ -49,6 +47,6 @@ app.use(errorHandel)
 app.all('*', (req, res) => {
     res.json({ message: 'in-valid URL' })
 });
-app.listen(process.env.port, () => {
+app.listen(3000, () => {
     console.log(`running.......`);
 });

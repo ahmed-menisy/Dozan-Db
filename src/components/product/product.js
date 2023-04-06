@@ -30,6 +30,7 @@ export const addProduct = async (req, res, next) => {
     }
     let video, image, added, imagesDB = [];
     if (req.files && req.files.mainImage) {
+        console.log({ files: req.files });
         let { mainImage, images, video } = req.files;
         if (mainImage) {
             image = await cloudinary.uploader.upload(req.files.mainImage[0].path, {
