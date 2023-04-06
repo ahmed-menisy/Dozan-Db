@@ -22,7 +22,7 @@ export const addAdmin = async (req, res, next) => {
     role: AdminAdded[0].role
   }
 
-  const token = jwt.sign(payload, process.env.TokenStart)
+  const token = jwt.sign(payload, 'Dozan')
 
   const link = `${req.protocol}://${req.headers.host}/api/v1/admin/confirm/${token}`
   const object = `                                                    
@@ -59,13 +59,13 @@ export const signIn = async (req, res, next) => {
   }
   isExist.isLoggedIn = true
   await isExist.save()
-  const token = jwt.sign(payload, process.env.TokenStart)
+  const token = jwt.sign(payload,'Dozan')
   res.status(StatusCodes.ACCEPTED).json({ message: "Done", token })
 }
 
 export const confirmEmail = async (req, res) => {
   const token = req.params.token;
-  const tokenDetails = jwt.verify(token, process.env.TokenStart)
+  const tokenDetails = jwt.verify(token, 'Dozan')
   const user = await adminModel.findByIdAndUpdate(tokenDetails.id, { confirmed: true }, { new: true })
   if (!user) {
     return res.status(404).json({ message: "user not found" });

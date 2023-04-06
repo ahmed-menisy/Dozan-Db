@@ -24,7 +24,7 @@ export const signUp = async (req, res, next) => {
         role: newUser.role
     }
 
-    const token = jwt.sign(payload, process.env.TokenStart)
+    const token = jwt.sign(payload, 'Dozan')
 
     const link = `${req.protocol}://${req.headers.host}/api/v1/users/confirm/${token}`
     const object = `                                                    
@@ -58,7 +58,7 @@ export const signIn = async (req, res, next) => {
                 email: user.email,
                 id: user._id
             }
-            const token = jwt.sign(userData, process.env.tokenSecret)
+            const token = jwt.sign(userData, 'Dozan')
             user.isLoggedIn = true
             await user.save()
 
@@ -83,7 +83,7 @@ export const checkToken = async (req, res, next) => {
 
 export const confirmEmail = async (req, res) => {
     const token = req.params.token;
-    const tokenDetails = jwt.verify(token, process.env.TokenStart)
+    const tokenDetails = jwt.verify(token, 'Dozan')
     const user = await userModel.findByIdAndUpdate(tokenDetails.id, { confirmed: true }, { new: true })
     if (!user) {
         return res.status(404).json({ message: "user not found" });

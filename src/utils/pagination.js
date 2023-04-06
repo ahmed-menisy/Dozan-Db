@@ -7,5 +7,5 @@ export const paginate = (page, size) => {
         size = 5
     }
     let skip = (page - 1) * size;
-    return { skip, limit: size };
+    return { skip, limit: size, page };
 }

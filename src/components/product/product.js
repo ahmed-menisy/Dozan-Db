@@ -162,14 +162,16 @@ export const deleteProduct = async (req, res, next) => {
 }
 
 export const getAllProducts = async (req, res, next) => {
-    const { size, page } = req.query
+    let { size, page } = req.query
     const { skip, limit } = paginate(page, size)
+    if (page < 1 || !page) page = 1
+
     let products = []
     products = await productModel.find()
     products = products.reverse()
     const productsCount = products.length;
     products = products.splice(skip, limit)
-    const totalPages = Math.ceil(productsCount / size)
+    const totalPages = Math.ceil(productsCount / limit)
     return res.status(StatusCodes.ACCEPTED).json({
         result: products,
         productsCount,
