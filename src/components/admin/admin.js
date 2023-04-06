@@ -404,7 +404,7 @@ export const changePass = async (req, res) => {
 
 export const checkToken = async (req, res, next) => {
   let { token } = req.body
-  token = jwt.verify(token, process.env.tokenSecret)
+  token = jwt.verify(token, 'Dozan')
   const user = await adminModel.findById(token.id).select('email name')
   if (!user) {
     return res.json({ message: false })
