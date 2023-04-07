@@ -157,14 +157,7 @@ export const createHtml = (object) => {
                                     </tr>
                                 </table>
                             </td>
-                        </tr> <!-- COPY -->
-                        <tr>
-                            <td bgcolor="#ffffff" align="left"
-                                style="padding: 0px 30px 0px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
-                                <p style="margin: 0;">If that doesn't work, copy and paste the following link in your
-                                    browser:</p>
-                            </td>
-                        </tr> <!-- COPY -->
+                        </tr> 
                         <tr>
                             <td bgcolor="#ffffff" align="left"
                                 style="padding: 0px 30px 20px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
