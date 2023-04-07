@@ -22,7 +22,7 @@ export const auth = (roles) => {
                 const token = startToken.split(' ')[1]
                 const userData = jwt.verify(token, 'Dozan')
                 let user
-                if (roles.includes("user")) {
+                if (roles.includes("user") && userData.role == roles.user) {
                     user = await userModel.findById(userData.id).select('-password')
 
                 } else if (roles.includes("admin") || roles.includes("superAdmin")) {

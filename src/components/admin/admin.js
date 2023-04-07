@@ -59,7 +59,7 @@ export const signIn = async (req, res, next) => {
   }
   isExist.isLoggedIn = true
   await isExist.save()
-  const token = jwt.sign(payload,'Dozan')
+  const token = jwt.sign(payload, 'Dozan')
   res.status(StatusCodes.ACCEPTED).json({ message: "Done", token })
 }
 
