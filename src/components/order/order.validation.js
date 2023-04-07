@@ -6,7 +6,6 @@ export const createOrderVal = {
     body: joi.object().required().keys({
         phone: joi.string().required(),
         address: joi.string().required(),
-        totalCost: joi.number().min(0).required(),
         comment: joi.string().max(2000)
     }),
     params: joi.object().required().keys({}),

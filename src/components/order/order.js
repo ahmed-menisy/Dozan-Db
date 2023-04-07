@@ -182,7 +182,7 @@ export const orderById = async (req, res, next) => {
 
 export const createOrder = async (req, res, next) => {
     const user = req.user._id; // token 
-    const { address, phone, totalCost } = req.body
+    const { address, phone } = req.body
     const cart = await cartModel.findOne({ user })
 
     //* calculate the total price and find removed products
@@ -202,7 +202,7 @@ export const createOrder = async (req, res, next) => {
     for (const product of productsFounded) {
         const orderProduct = cart.products.find(p => p.product.toString() === product._id.toString());
         founded.push({ product: orderProduct.product, quantity: orderProduct.quantity });
-    } let order = new orderModel({ phone, address, products: founded, totalCost, user })
+    } let order = new orderModel({ phone, address, products: founded, user })
     order = await order.save();
     cart.products = [];
     await cart.save();
