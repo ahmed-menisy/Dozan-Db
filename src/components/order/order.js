@@ -8,25 +8,7 @@ import orderModel from "../../../DB/models/orderModel.js";
 import productModel from "../../../DB/models/productModel.js";
 import cartModel from "../../../DB/models/cartModel.js";
 import userModel from "../../../DB/models/userModel.js";
-import Stripe from "stripe";
 import { paginate } from "../../utils/pagination.js";
-import paypalOrderModel from "../../../DB/models/paypalOrders.js";
-const stripe = new Stripe('sk_test_51MpD51AUsfiu2LC2yQ0merf2K3tdQjN9CBmYrzFf1UID9vDTrA2a04x5c3ivOq0m9hl8IM4D9QKOx9PhTLx3wN3p00HHNdHZ2Q')
-import paypal from "paypal-rest-sdk";
-import braintree from 'braintree';
-import jwt from 'jsonwebtoken'
-paypal.configure({
-    mode: "sandbox", //sandbox or live
-    client_id: 'AQ53sHRm8p528bk5EeryxAzTNTEmuCWC50R9j9_TDA_t6O6oxW9fmcmHBhxLsyv4iux5Eg-8aQ_eE42u',
-    client_secret: 'EFxXRICPZbQo9uJ6hSYrF_k_w04YJcHey-Uf45SYfWuGybl0sstsef3wdh3_08kD0XUSThDW9fQpKdPS',
-});
-const gateway = new braintree.BraintreeGateway({
-    environment: braintree.Environment.Sandbox,
-    merchantId: 's569qhrq2ndwjmkz',
-    publicKey: 'hpr6k57dktfpzps7',
-    privateKey: 'c5ea3cf8cf5b9dba1599492809f963ec'
-});
-
 
 
 
@@ -198,17 +180,12 @@ export const orderById = async (req, res, next) => {
 }
 
 
-export const checkout = async (req, res, next) => {
-    const user = req.user._id
-    let { shippingMount, address, phone, comment } = req.body
+export const createOrder = async (req, res, next) => {
+    const user = req.user._id; // token 
+    const { address, phone, totalCost } = req.body
     const cart = await cartModel.findOne({ user })
-    if (!cart.products.length) {
-        return next(new ErrorClass("No products found", 404))
-    }
-    //* calculate the total price and find removed products
-    shippingMount = Number(shippingMount)
 
-    let totalCost = 0
+    //* calculate the total price and find removed products
     let notFound = [], founded = [];
     const productsFounded = await productModel.find({
         _id
@@ -222,246 +199,12 @@ export const checkout = async (req, res, next) => {
     if (productsFounded.length !== cart.products.length) {
         notFound = cart.products.filter(product => !productsFounded.find(p => p._id.toString() === product.product));
     }
-    // Calculate the total cost of the order
     for (const product of productsFounded) {
         const orderProduct = cart.products.find(p => p.product.toString() === product._id.toString());
-
-        totalCost += Number(product.price) * Number(orderProduct.quantity);
         founded.push({ product: orderProduct.product, quantity: orderProduct.quantity });
-    }
-    totalCost += Number(shippingMount)
-
-
-    //* create stripe session
-
-    const session = await stripe.checkout.sessions.create({
-        line_items: [{
-
-            price_data: {
-                currency: 'ILS',
-                unit_amount: totalCost * 100,
-                product_data: {
-                    name: req.user.name
-                },
-            },
-            quantity: 1,
-        }],
-        mode: 'payment',
-        success_url: `${req.protocol}://${req.headers.host}/api/v1/admin/data`,
-        cancel_url: `${req.protocol}://${req.headers.host}/api/v1/category/get-all-categories?sort=sorted`,
-        customer_email: req.user.email,
-        client_reference_id: cart._id,
-        metadata: {
-            address,
-            phone,
-            comment,
-            totalCost,
-            products: JSON.stringify(founded),
-            user: JSON.stringify(req.user._id)
-        }
-    })
-
-    res.status(StatusCodes.ACCEPTED).json({ message: "Done", payment_url: session.url })
-}
-
-export const webhookCheckout = async (req, res, next) => {
-    const sig = req.headers['stripe-signature'];
-    let event = stripe.webhooks.constructEvent(req.body, sig, 'whsec_WINAHd9KEH1JsrhfEyEk7e7Baz91497v');
-    if (event.type == 'checkout.session.completed') {
-        let { phone, address, products, comment, totalCost, user } = event.data.object.metadata
-        products = JSON.parse(products)
-        user = JSON.parse(user)
-        let order = new orderModel({ phone, address, products, comment, totalCost, user })
-        order = await order.save();
-        let cart = await cartModel.findOne({ user });
-        cart.products = [];
-        await cart.save();
-        res.json({ message: "Done", order });
-    } else {
-        res.json({ message: "payment failed" });
-    }
-}
-
-
-export const paypalCheckOut = async (req, res, next) => {
-    const user = req.user._id
-    let { shippingMount, address, phone, comment } = req.body
-    shippingMount = Number(shippingMount)
-
-    const cart = await cartModel.findOne({ user })
-    if (!cart.products.length) {
-        return next(new ErrorClass("No products found", 404))
-    }
-
-    //* calculate the total price and find removed products
-    let totalCost = 0
-    let notFound = [], founded = [];
-    const productsFounded = await productModel.find({
-        _id
-            : {
-            $in: cart.products.map(product => {
-                return product.product
-            })
-        }
-    }).select('price');
-    // Validate that all the product IDs were found
-    if (productsFounded.length !== cart.products.length) {
-        notFound = cart.products.filter(product => !productsFounded.find(p => p._id.toString() === product.product));
-    }
-    // Calculate the total cost of the order
-    for (const product of productsFounded) {
-        const orderProduct = cart.products.find(p => p.product.toString() === product._id.toString());
-
-        totalCost += Number(product.price) * Number(orderProduct.quantity);
-        founded.push({ product: orderProduct.product, quantity: orderProduct.quantity });
-    }
-    totalCost += Number(shippingMount)
-    let paid = new paypalOrderModel({ user, phone, address, products: founded, comment, totalCost })
-    paid = await paid.save();
-    //* create paypal
-
-    const create_payment_json = {
-        intent: "sale",
-        payer: {
-            payment_method: "paypal",
-        },
-        redirect_urls: {
-            return_url: `${req.protocol}://${req.headers.host}/api/v1/order/success/${paid._id}`,
-            cancel_url: `${req.protocol}://${req.headers.host}/api/v1/order/cancel/${paid._id}`,
-        },
-        transactions: [
-            {
-                item_list: {
-                    items: [
-                        {
-                            name: req.user.name,
-                            price: totalCost,
-                            currency: "ILS",
-                            quantity: 1,
-                        },
-                    ],
-                },
-                amount: {
-                    currency: "ILS",
-                    total: totalCost,
-                },
-            },
-        ],
-    };
-
-    paypal.payment.create(create_payment_json, function (error, payment) {
-        if (error) {
-            res.json(error);
-        } else {
-            for (let i = 0; i < payment.links.length; i++) {
-                if (payment.links[i].rel === "approval_url") {
-                    res.json({ message: "Done", paymentURL: payment.links[i].href })
-                }
-            }
-        }
-    });
-}
-
-export const success = async (req, res) => {
-    const payId = req.params.payId
-    const payerId = req.query.PayerID;
-    const paymentId = req.query.paymentId;
-    const order = await paypalOrderModel.findByIdAndDelete(payId)
-    const { phone, address, products, comment, totalCost, user } = order
-    const execute_payment_json = {
-        payer_id: payerId,
-        transactions: [{
-            amount: {
-                currency: 'ILS',
-                total: order.totalCost,
-            },
-        }],
-    };
-    paypal.payment.execute(
-        paymentId,
-        execute_payment_json,
-        async (error, payment) => {
-            if (error) {
-                res.json({ message: error.response });//* it will replace by the front end 
-
-            } else {
-
-                let order = new orderModel({ phone, address, products, comment, totalCost, user })
-                order = await order.save();
-                let cart = await cartModel.findOne({ user });
-                cart.products = [];
-                await cart.save();
-                res.json({ message: "Done", order });//* it will replace by the front end 
-            }
-        }
-    );
-
-}
-
-export const cancel = async (req, res) => {
-    const payId = req.params.payId
-    await paypalOrderModel.findByIdAndDelete(payId)
-    res.json({ message: "Canceled" });
-
-}
-
-
-
-
-export const clientToken = async (req, res, next) => {
-    gateway.clientToken.generate({}).then(response => {
-        res.json({ token: response.clientToken });
-    });
-}
-
-export const brainTreeCheckOut = async (req, res, next) => {
-    const nonceFromTheClient = req.body;
-    // Use payment method nonce here
-    const user = req.user._id;
-    const { address, phone, comment, shippingMount } = req.query
-    const cart = await cartModel.findOne({ user })
-
-    //* calculate the total price and find removed products
-    let totalCost = 0
-    let notFound = [], founded = [];
-    const productsFounded = await productModel.find({
-        _id
-            : {
-            $in: cart.products.map(product => {
-                return product.product
-            })
-        }
-    }).select('price');
-    // Validate that all the product IDs were found
-    if (productsFounded.length !== cart.products.length) {
-        notFound = cart.products.filter(product => !productsFounded.find(p => p._id.toString() === product.product));
-    }
-    // Calculate the total cost of the order
-    for (const product of productsFounded) {
-        const orderProduct = cart.products.find(p => p.product.toString() === product._id.toString());
-
-        totalCost += Number(product.price) * Number(orderProduct.quantity);
-        founded.push({ product: orderProduct.product, quantity: orderProduct.quantity });
-    }
-    totalCost += Number(shippingMount)
-
-    gateway.transaction.sale({
-        amount: totalCost,
-        paymentMethodNonce: nonceFromTheClient.nonce,
-        options: {
-            submitForSettlement: true
-        }
-    }).then(async (result) => {
-        if (result.success) {
-            let order = new orderModel({ phone, address, products: founded, comment, totalCost, user })
-            order = await order.save();
-            cart.products = [];
-            await cart.save();
-            res.json({ result: result.success, order });
-        } else {
-            res.json({ result });
-        }
-    }).catch(err => {
-        res.json({ err })
-    });
+    } let order = new orderModel({ phone, address, products: founded, totalCost, user })
+    order = await order.save();
+    cart.products = [];
+    await cart.save();
+    res.json({ message: "Done", order });
 }
