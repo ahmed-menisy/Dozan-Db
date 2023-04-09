@@ -20,8 +20,14 @@ import favouriteRouter from "./src/components/favourite/favourite.routes.js";
 import cors from "cors"
 import compression from 'compression'
 connection()
-app.use(cors())
-app.use(compression())
+
+app.use((request, response, next) => {
+    response.set('Referrer-Policy', 'no-referrer');
+    next();
+})
+app.use(cors({
+    origin: "*",
+}))
 
 
 
