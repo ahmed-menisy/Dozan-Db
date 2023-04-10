@@ -70,7 +70,7 @@ export const confirmEmail = async (req, res) => {
   if (!user) {
     return res.status(404).json({ message: "user not found" });
   }
-  res.redirect('https://google.com');
+  res.redirect('https://aldozan.com');
 }
 
 export const changePassword = async (req, res, next) => {

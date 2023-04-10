@@ -21,13 +21,7 @@ import cors from "cors"
 import compression from 'compression'
 connection()
 
-app.use((request, response, next) => {
-    response.set('Referrer-Policy', 'no-referrer');
-    next();
-})
-app.use(cors({
-    origin: "*",
-}))
+app.use(cors())
 
 
 
