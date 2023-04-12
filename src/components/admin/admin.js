@@ -10,6 +10,9 @@ import jwt from 'jsonwebtoken';
 import { roles } from '../../middleware/auth.js';
 import { createHtml, sendEmail } from '../../utils/sendEmail.js';
 import userModel from '../../../DB/models/userModel.js';
+import passport from 'passport';
+import googleStrategy from 'passport-google-oauth20'
+let GoogleStrategy = googleStrategy.Strategy
 
 
 export const addAdmin = async (req, res, next) => {

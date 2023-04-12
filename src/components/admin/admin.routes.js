@@ -52,7 +52,6 @@ router.post('/reset-password',
     asyncErrorHandler(admin.changePass)
 )
 
-
 router.post('/check-token', validation(adminValidation.checkToken), asyncErrorHandler(admin.checkToken))
 
 export default router

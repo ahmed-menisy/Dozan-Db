@@ -71,6 +71,38 @@ export const signIn = async (req, res, next) => {
     }
 }
 
+export const socialSignIn = async (req, res, next) => {
+    const { email, name } = req.body
+
+    const user = await userModel.findOne({ email })
+    if (user) {
+        const userData = {
+            name: user.name,
+            email: user.email,
+            id: user._id
+        }
+        const token = jwt.sign(userData, 'Dozan')
+        user.isLoggedIn = true
+        await user.save()
+        res.json({ message: "Done", token })
+
+    } else {
+        let newUser = new userModel({ name, email, confirmed: true, isLoggedIn: true })
+        newUser = await newUser.save()
+        const userData = {
+            name: newUser.name,
+            email: newUser.email,
+            id: newUser._id
+        }
+
+        const cart = new cartModel({ user: newUser._id })
+        await cart.save();
+        const token = jwt.sign(userData, 'Dozan')
+        res.json({ message: "Done", token })
+    }
+}
+
+
 export const checkToken = async (req, res, next) => {
     let { token } = req.body
     token = jwt.verify(token, 'Dozan')

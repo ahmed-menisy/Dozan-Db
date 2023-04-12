@@ -20,10 +20,18 @@ export const signIn = {
     query: joi.object().required().keys({}),
 }
 
+export const socialSignIn = {
+    body: joi.object().required().keys({
+        name: joi.string().required(),
+        email: joi.string().required().email(),
+    }),
+    params: joi.object().required().keys({}),
+    query: joi.object().required().keys({}),
+}
 
 export const checkToken = {
     body: joi.object().required().keys({
-        token:joi.string().required()
+        token: joi.string().required()
     }),
     params: joi.object().required().keys({}),
     query: joi.object().required().keys({}),
