@@ -102,7 +102,7 @@ export const socialSignIn = async (req, res, next) => {
             name: newUser.name,
             email: newUser.email,
             id: newUser._id,
-            method: user.method
+            method: newUser.method
 
         }
 
