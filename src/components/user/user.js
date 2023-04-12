@@ -60,12 +60,12 @@ export const signIn = async (req, res, next) => {
             const userData = {
                 name: user.name,
                 email: user.email,
-                id: user._id
+                id: user._id,
+                method: user.method
             }
             const token = jwt.sign(userData, 'Dozan')
             user.isLoggedIn = true
             await user.save()
-
             res.json({ message: "Done", token })
         } else {
             return res.json({ message: "in-valid user information" });
@@ -86,7 +86,9 @@ export const socialSignIn = async (req, res, next) => {
         const userData = {
             name: user.name,
             email: user.email,
-            id: user._id
+            id: user._id,
+            method: user.method
+
         }
         const token = jwt.sign(userData, 'Dozan')
         user.isLoggedIn = true
@@ -99,7 +101,9 @@ export const socialSignIn = async (req, res, next) => {
         const userData = {
             name: newUser.name,
             email: newUser.email,
-            id: newUser._id
+            id: newUser._id,
+            method: user.method
+
         }
 
         const cart = new cartModel({ user: newUser._id })
