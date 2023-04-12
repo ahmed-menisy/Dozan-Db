@@ -47,6 +47,10 @@ export const signIn = async (req, res, next) => {
 
     const user = await userModel.findOne({ email })
     if (user) {
+        if (user.method == 'google') {
+            return next(new ErrorClass('in-valid user information', StatusCodes.BAD_REQUEST))
+        }
+
         if (!user.confirmed) {
             return next(new ErrorClass('please confirm your email', StatusCodes.BAD_REQUEST));
         }
@@ -76,6 +80,9 @@ export const socialSignIn = async (req, res, next) => {
 
     const user = await userModel.findOne({ email })
     if (user) {
+        if (user.method != 'google') {
+            return next(new ErrorClass('in-valid user information', StatusCodes.BAD_REQUEST))
+        }
         const userData = {
             name: user.name,
             email: user.email,
@@ -87,7 +94,7 @@ export const socialSignIn = async (req, res, next) => {
         res.json({ message: "Done", token })
 
     } else {
-        let newUser = new userModel({ name, email, confirmed: true, isLoggedIn: true })
+        let newUser = new userModel({ name, email, confirmed: true, isLoggedIn: true, method: 'google' })
         newUser = await newUser.save()
         const userData = {
             name: newUser.name,

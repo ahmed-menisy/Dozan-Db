@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
+    method: {
+        type: String,
+        enum: ['origin', 'google'],
+        default: 'origin'
+    },
     name: {
         type: String,
         required: true,
